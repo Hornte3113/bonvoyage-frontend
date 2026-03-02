@@ -1,13 +1,12 @@
-import React, { Children } from "react";
+import React from "react";
 import { IoIosArrowBack, IoIosArrowDown } from "react-icons/io";
 import Progress from "./Progress";
 import { Data, CurrentSlideData } from "@/app/page";
-import { tr } from "motion/react-client";
 
 
 type Props = {
     currentSlideData: CurrentSlideData;
-    SliderData: Data[];
+    sliderData: Data[];
     data: Data[];
     transitionData: Data;
     handleData: React.Dispatch<React.SetStateAction<Data[]>>;

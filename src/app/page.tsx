@@ -34,12 +34,13 @@ export default function Home() {
   });
 
   return(
-    <main className={`${inter.className} relative min-h-screen select-none overflow-hidden text-white antialiased`}>
+    <main className={`${inter.className} relative h-screen select-none overflow-hidden text-white antialiased`}>
       <AnimatePresence>
-        <BackgroundImage 
-        transitionData={transitionData} 
+        <BackgroundImage
+        key="background"
+        transitionData={transitionData}
         currentSlideData={currentSlideData}/>
-        <div className="absolute z-20 h-full w-full">
+        <div key="content" className="absolute top-0 left-0 z-20 h-full w-full">
           {/*todo esto esel header section*/}
           <Header />
           {/*aqui llamo a el componente de header*/}
@@ -85,27 +86,27 @@ const sliderData = [
   },
    {
     img: "/images/slide2.jpg",
-    title: "Explora el mundo con nosotros",
-    description: "Descubre lugares increíbles con nuestra experiencia de viaje personalizada.",
-    location: "Mundo"
+    title: "Explora bellos lugares",
+    description: "probando textos para ver el slideje personalizada.",
+    location: "Milan"
   },
    {
-    img: "/images/slide3.jpg",
-    title: "Explora el mundo con nosotros",
-    description: "Descubre lugares increíbles con nuestra experiencia de viaje personalizada.",
-    location: "Mundo"
+    img: "/images/slide3.png",
+    title: "Probando contenido",
+    description: "Prieba viajar con nosotro.",
+    location: "Colombia"
   },
    {
     img: "/images/slide4.jpg",
-    title: "Explora el mundo con nosotros",
-    description: "Descubre lugares increíbles con nuestra experiencia de viaje personalizada.",
-    location: "Mundo"
+    title: "Explora paisajes con nosotros",
+    description: "Desconectate ya no me sale.",
+    location: "Mexico"
   },
    {
     img: "/images/slide5.jpg",
-    title: "Explora el mundo con nosotros",
-    description: "Descubre lugares increíbles con nuestra experiencia de viaje personalizada.",
-    location: "Mundo"
+    title: "Me quiero dar de baja",
+    description: "Porque no se parece al tutorial.",
+    location: "Tokio"
   },
 ]
 

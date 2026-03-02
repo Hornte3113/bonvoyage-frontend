@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { Geist, Geist_Mono, Quicksand } from 'next/font/google'
 import './globals.css'
-import HeaderNav from './components/HeaderNav'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,8 +28,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <HeaderNav />
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}>
           {children}
         </body>
       </html>

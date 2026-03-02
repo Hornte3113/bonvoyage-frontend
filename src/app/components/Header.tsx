@@ -1,15 +1,10 @@
 import React from "react";
 import { motion } from "motion/react";
 import { IoIosGlobe, IoMdSearch, IoMdPerson } from "react-icons/io";
-import Head from "next/head";
-
 function Header() {
     const[active, setActive] = React.useState(0);
     return (
         <div className=" absolute mt-5 flex w-full flex-wrap items-center justify-between gap-2 px-5 text-xs font-medium uppercase opacity-90 md:px-10">
-            <Head>
-                <title>Bon Voyage</title>
-            </Head>
             <div className=" flex items-center gap-2 font-medium tracking-[4px]">
                 <IoIosGlobe className=" text-xl"/>
                 Bon Voyage

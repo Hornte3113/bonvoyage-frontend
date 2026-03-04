@@ -16,9 +16,9 @@ type Props = {
 
 export default function DestinationCard({ place, onSave, onCancel }: Props) {
   return (
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-full max-w-sm bg-white rounded-2xl shadow-2xl p-5 border border-gray-100">
+    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 w-full max-w-sm bg-white  shadow-2xl p-5 border border-gray-100">
       <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2 text-emerald-600">
+        <div className="flex items-center gap-2 text-blue-600">
           <IoLocationSharp className="text-xl flex-shrink-0" />
           <span className="text-xs font-semibold uppercase tracking-wider">Destino seleccionado</span>
         </div>
@@ -44,9 +44,15 @@ export default function DestinationCard({ place, onSave, onCancel }: Props) {
         </button>
         <button
           onClick={() => onSave(place)}
-          className="flex-1 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors"
+          className="flex-1 py-2  bg-blue-400 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
         >
           Crear viaje
+        </button>
+         <button
+          onClick={() => onSave(place)}
+          className="flex-1 py-2 rounded-lg bg-blue-400 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          Añadir a whislist
         </button>
       </div>
     </div>

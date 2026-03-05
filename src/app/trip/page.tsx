@@ -34,6 +34,9 @@ function TripPageContent() {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <TripHeader />
 
+      {/* Secondary nav */}
+      <TripNav active={activeSection} onChange={setActiveSection} />
+
       {/* Destination hero */}
       <div className="relative h-48 w-full overflow-hidden bg-gray-800">
         {destination.photoUrl ? (
@@ -52,9 +55,6 @@ function TripPageContent() {
           )}
         </div>
       </div>
-
-      {/* Nav + content */}
-      <TripNav active={activeSection} onChange={setActiveSection} />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
         {sectionComponents[activeSection]}

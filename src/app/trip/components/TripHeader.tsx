@@ -9,8 +9,9 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 const menus = [
   { label: "Home",         href: "/"             },
-  { label: "DiscoveryMap", href: "/dashboard"    },
   { label: "Destinos",     href: "/destinations" },
+  { label: "DiscoveryMap", href: "/dashboard"    },
+  
 ];
 
 export default function TripHeader() {
@@ -18,29 +19,30 @@ export default function TripHeader() {
 
   return (
     <header className="w-full flex items-center justify-between px-6 py-3 bg-white border-b border-gray-100 md:px-10">
-      {/* Logo */}
-      <div className="flex items-center gap-2 font-medium tracking-[4px] text-gray-800 text-xs uppercase">
-        <IoIosGlobe className="text-xl text-blue-500" />
-        Bon Voyage
-      </div>
+      {/* Logo + Menu alineados a la izquierda */}
+      <div className="flex items-center gap-180">
+        <div className="flex items-center gap-2 font-medium tracking-[4px] text-gray-800 text-xs uppercase">
+          <IoIosGlobe className="text-xl text-blue-500" />
+          Bon Voyage
+        </div>
 
-      {/* Menu */}
-      <ul className="flex items-center gap-6 text-[11px] font-medium uppercase text-gray-600">
-        {menus.map(({ label, href }) => (
-          <motion.li layout key={href}>
-            <Link
-              href={href}
-              className={`inline-block pb-0.5 transition-colors hover:text-gray-900 ${
-                pathname === href
-                  ? "border-b-2 border-blue-500 text-gray-900"
-                  : "hover:border-b-2 hover:border-gray-300"
-              }`}
-            >
-              {label}
-            </Link>
-          </motion.li>
-        ))}
-      </ul>
+        <ul className="flex items-center gap-6 text-[11px] font-medium uppercase text-gray-600">
+          {menus.map(({ label, href }) => (
+            <motion.li layout key={href}>
+              <Link
+                href={href}
+                className={`inline-block pb-0.5 transition-colors ${
+                  pathname === href
+                    ? "border-b-2 border-blue-500 text-blue-600"
+                    : "hover:border-b-2 hover:border-blue-400 hover:text-blue-500"
+                }`}
+              >
+                {label}
+              </Link>
+            </motion.li>
+          ))}
+        </ul>
+      </div>
 
       {/* Right side: cart + user */}
       <div className="flex items-center gap-4">

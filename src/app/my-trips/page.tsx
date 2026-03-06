@@ -17,8 +17,10 @@ type Trip = {
   status: string;
   is_favorite: boolean;
   destination_name?: string;
+  destination_city?: string;
   destination_image?: string;
   total_days?: number;
+  total_items?: number;
 };
 
 export default function MyTripsPage() {
@@ -83,7 +85,6 @@ export default function MyTripsPage() {
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
             <IoAirplane className="text-5xl text-gray-200 mx-auto mb-4" />
             <p className="text-gray-500 text-sm">{error}</p>
-            <p className="text-gray-400 text-xs mt-1">El equipo backend está trabajando en este endpoint.</p>
           </div>
         )}
 
@@ -101,7 +102,7 @@ export default function MyTripsPage() {
         {!loading && trips.length > 0 && (
           <div className="space-y-3">
             {trips.map((trip) => (
-              <TripCard key={trip.trip_id} trip={trip} onClick={() => router.push(`/trip?tripId=${trip.trip_id}&name=${encodeURIComponent(trip.destination_name ?? trip.trip_name)}`)} />
+              <TripCard key={trip.trip_id} trip={trip} onClick={() => router.push(`/trip?tripId=${trip.trip_id}&name=${encodeURIComponent(trip.destination_city ?? trip.destination_name ?? trip.trip_name)}`)} />
             ))}
           </div>
         )}
@@ -144,8 +145,8 @@ function TripCard({ trip, onClick }: { trip: Trip; onClick: () => void }) {
             </span>
           )}
         </div>
-        {trip.destination_name && (
-          <p className="text-xs text-gray-500 mt-0.5">{trip.destination_name}</p>
+        {(trip.destination_city ?? trip.destination_name) && (
+          <p className="text-xs text-gray-500 mt-0.5">{trip.destination_city ?? trip.destination_name}</p>
         )}
         {start && (
           <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">

@@ -14,7 +14,7 @@ function parsePopularMonths(raw: string): string {
   if (raw.includes(",")) {
     return raw.split(",").map((n) => MONTH_NAMES[parseInt(n)] ?? n).filter(Boolean).join(", ");
   }
-  // Parse digit sequence greedily: try 2-digit (Oct–Dec) then 1-digit
+
   const months: string[] = [];
   let i = 0;
   while (i < raw.length) {
@@ -83,7 +83,7 @@ export default function WishlistPage() {
       });
       setItems((prev) => prev.filter((i) => i.wishlist_id !== wishlistId));
     } catch {
-      // silent
+      
     } finally {
       setRemoving(null);
     }

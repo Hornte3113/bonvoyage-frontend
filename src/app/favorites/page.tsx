@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { IoIosGlobe } from "react-icons/io";
-import { IoAirplane, IoCalendarOutline, IoChevronForward, IoHeart } from "react-icons/io5";
+import { IoCalendarOutline, IoChevronForward, IoHeart } from "react-icons/io5";
 import Link from "next/link";
 
 const BACKEND = "https://bonvoyage-backend.vercel.app";
@@ -17,7 +17,10 @@ type Trip = {
   status: string;
   is_favorite: boolean;
   destination_name?: string;
+  destination_city?: string;
   destination_image?: string;
+  total_days?: number;
+  total_items?: number;
 };
 
 export default function FavoritesPage() {
@@ -37,7 +40,7 @@ export default function FavoritesPage() {
         if (!res.ok) throw new Error(`Error ${res.status}`);
         const data = await res.json();
         const all: Trip[] = data.trips ?? data.data ?? data ?? [];
-        setTrips(all.filter((t) => t.is_favorite));
+        setTrips(all.filter((t: Trip) => t.is_favorite));
       } catch {
         setError("No se pudieron cargar los favoritos.");
       } finally {
@@ -73,7 +76,6 @@ export default function FavoritesPage() {
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
             <IoHeart className="text-5xl text-gray-200 mx-auto mb-4" />
             <p className="text-gray-500 text-sm">{error}</p>
-            <p className="text-gray-400 text-xs mt-1">El equipo backend está trabajando en este endpoint.</p>
           </div>
         )}
 
@@ -91,7 +93,7 @@ export default function FavoritesPage() {
         {!loading && trips.length > 0 && (
           <div className="space-y-3">
             {trips.map((trip) => (
-              <FavCard key={trip.trip_id} trip={trip} onClick={() => router.push(`/trip?tripId=${trip.trip_id}&name=${encodeURIComponent(trip.destination_name ?? trip.trip_name)}`)} />
+              <FavCard key={trip.trip_id} trip={trip} onClick={() => router.push(`/trip?tripId=${trip.trip_id}&name=${encodeURIComponent(trip.destination_city ?? trip.destination_name ?? trip.trip_name)}`)} />
             ))}
           </div>
         )}
@@ -119,7 +121,7 @@ function FavCard({ trip, onClick }: { trip: Trip; onClick: () => void }) {
 
       <div className="flex-1 min-w-0">
         <h3 className="font-bold text-gray-800 text-sm">{trip.trip_name}</h3>
-        {trip.destination_name && <p className="text-xs text-gray-500 mt-0.5">{trip.destination_name}</p>}
+        {(trip.destination_city ?? trip.destination_name) && <p className="text-xs text-gray-500 mt-0.5">{trip.destination_city ?? trip.destination_name}</p>}
         {start && (
           <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">
             <IoCalendarOutline className="text-xs" />

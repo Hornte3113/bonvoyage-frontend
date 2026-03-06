@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import {
   IoAirplane, IoSwapHorizontal, IoSearch, IoChevronDown,
-  IoArrowForward,
+  IoArrowForward, IoAdd, IoCheckmark, IoCalendarOutline,
 } from "react-icons/io5";
+import type { TripDay } from "../types";
 
 const BACKEND = "https://bonvoyage-backend.vercel.app";
 
@@ -45,6 +46,8 @@ type Destination = {
 
 type Props = {
   destination: Destination;
+  tripId?: string;
+  tripDays?: TripDay[];
   defaultOrigin?: string;
   defaultDepartDate?: string;
   defaultReturnDate?: string;
@@ -87,6 +90,8 @@ async function resolveLocation(query: string, token: string) {
 
 export default function FlightsSection({
   destination,
+  tripId,
+  tripDays = [],
   defaultOrigin = "",
   defaultDepartDate = "",
   defaultReturnDate = "",
@@ -94,6 +99,40 @@ export default function FlightsSection({
   defaultCabinClass = "economy",
 }: Props) {
   const { getToken } = useAuth();
+
+  async function handleSaveFlight(vuelo: Vuelo, dayId: string) {
+    if (!tripId) return;
+    const token = await getToken();
+    const firstLeg = vuelo.tramos?.[0];
+    const saveRes = await fetch(`${BACKEND}/api/flights/save`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        external_flight_id: vuelo.id ?? crypto.randomUUID(),
+        airline_code: firstLeg?.aerolinea ?? vuelo.aerolinea ?? "UNKNOWN",
+        flight_number: vuelo.id ?? "N/A",
+        origin_airport: firstLeg?.origen ?? vuelo.origen ?? "UNKNOWN",
+        destination_airport: firstLeg?.destino ?? vuelo.destino ?? "UNKNOWN",
+        departure_time: firstLeg?.salida ?? vuelo.salida ?? new Date().toISOString(),
+        arrival_time: firstLeg?.llegada ?? vuelo.llegada ?? new Date().toISOString(),
+        price: vuelo.precio ?? 0,
+        currency: "USD",
+        api_source: "air-scrapper",
+      }),
+    });
+    if (!saveRes.ok) throw new Error("Error al guardar vuelo");
+    const { reference_id } = await saveRes.json();
+    await fetch(`${BACKEND}/api/trips/${tripId}/days/${dayId}/items`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        item_type: "FLIGHT",
+        flight_reference_id: reference_id,
+        estimated_cost: vuelo.precio ?? undefined,
+        notes: "Vuelo",
+      }),
+    });
+  }
   const [tripType, setTripType] = useState<TripType>("ida-vuelta");
   const [origin, setOrigin] = useState(defaultOrigin);
   const [dest, setDest] = useState(
@@ -301,15 +340,45 @@ export default function FlightsSection({
         )}
 
         {vuelos.map((vuelo, i) => (
-          <FlightCard key={vuelo.id ?? i} vuelo={vuelo} />
+          <FlightCard
+            key={vuelo.id ?? i}
+            vuelo={vuelo}
+            tripDays={tripDays}
+            onSaveToDay={tripId ? handleSaveFlight : undefined}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function FlightCard({ vuelo }: { vuelo: Vuelo }) {
+function FlightCard({
+  vuelo,
+  tripDays,
+  onSaveToDay,
+}: {
+  vuelo: Vuelo;
+  tripDays?: TripDay[];
+  onSaveToDay?: (vuelo: Vuelo, dayId: string) => Promise<void>;
+}) {
   const [expanded, setExpanded] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [savedDayId, setSavedDayId] = useState<string | null>(null);
+
+  async function handleAddToDay(dayId: string) {
+    if (!onSaveToDay) return;
+    setSaving(true);
+    try {
+      await onSaveToDay(vuelo, dayId);
+      setSavedDayId(dayId);
+    } catch {
+      // silent
+    } finally {
+      setSaving(false);
+      setPickerOpen(false);
+    }
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -370,6 +439,51 @@ function FlightCard({ vuelo }: { vuelo: Vuelo }) {
               <span className="text-gray-400 ml-auto">{formatDuration(tramo.duracionMin)}</span>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Add to itinerary */}
+      {expanded && onSaveToDay && tripDays && tripDays.length > 0 && (
+        <div className="border-t border-gray-100 px-5 py-3">
+          {savedDayId ? (
+            <div className="flex items-center gap-2 text-green-600 text-xs font-semibold">
+              <IoCheckmark className="text-sm" />
+              Vuelo añadido al itinerario
+            </div>
+          ) : !pickerOpen ? (
+            <button
+              onClick={() => setPickerOpen(true)}
+              className="flex items-center gap-2 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              <IoAdd className="text-sm" />
+              Agregar al itinerario
+            </button>
+          ) : (
+            <div>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-2 flex items-center gap-1">
+                <IoCalendarOutline className="text-xs" />
+                Selecciona el día
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {tripDays.map((d) => (
+                  <button
+                    key={d.dayId}
+                    onClick={() => handleAddToDay(d.dayId)}
+                    disabled={saving}
+                    className="text-xs font-medium px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-blue-500 hover:text-white text-gray-700 transition-colors disabled:opacity-50"
+                  >
+                    {saving ? "..." : `Día ${d.dayNumber}`}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setPickerOpen(false)}
+                  className="text-xs text-gray-400 hover:text-gray-600 px-2"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

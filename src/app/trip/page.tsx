@@ -207,6 +207,8 @@ function TripPageContent() {
     vuelos: (
       <FlightsSection
         destination={destination}
+        tripId={tripId ?? undefined}
+        tripDays={tripDays}
         defaultOrigin={wizardFlightParams.origin}
         defaultDepartDate={wizardFlightParams.startDate}
         defaultReturnDate={wizardFlightParams.endDate}

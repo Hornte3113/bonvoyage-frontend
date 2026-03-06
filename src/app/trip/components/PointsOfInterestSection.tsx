@@ -82,7 +82,7 @@ export default function PointsOfInterestSection({ destination }: { destination: 
   return (
     <div className="px-4 max-w-6xl mx-auto pt-6 pb-8 space-y-4">
 
-      {/* Search bar */}
+      {/* bara de bsuqueda */}
       <div className="relative max-w-sm">
         <IoSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
@@ -94,10 +94,10 @@ export default function PointsOfInterestSection({ destination }: { destination: 
         />
       </div>
 
-      {/* Main layout: cards grid + map */}
+     
       <div className="flex gap-4 items-start">
 
-        {/* Left — cards grid */}
+        
         <div className="flex-1 overflow-y-auto max-h-[580px] pr-1">
           {filtered.length === 0 ? (
             <p className="text-sm text-gray-400 py-10 text-center">Sin resultados para "{query}"</p>
@@ -115,7 +115,7 @@ export default function PointsOfInterestSection({ destination }: { destination: 
           )}
         </div>
 
-        {/* Right — smaller sticky map */}
+        
         <div className="w-72 flex-shrink-0 sticky top-16 h-[580px] rounded-2xl overflow-hidden shadow-md border border-gray-100">
           <POIMap
             places={filtered}
@@ -147,7 +147,7 @@ function POICard({
           : "border-gray-100 hover:border-gray-300 hover:shadow"
       }`}
     >
-      {/* Image */}
+     
       <div className="w-full h-28 bg-gray-100 overflow-hidden">
         {poi.photoUrl ? (
           <img src={poi.photoUrl} alt={poi.name} className="w-full h-full object-cover" />
@@ -159,7 +159,7 @@ function POICard({
       </div>
 
       <div className="p-2.5">
-        {/* Rating + Price */}
+        {/* caificacion */}
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-1">
             {poi.rating && (
@@ -184,19 +184,19 @@ function POICard({
           )}
         </div>
 
-        {/* Name */}
+        {/* nombre */}
         <h3 className="font-semibold text-gray-800 text-xs leading-tight line-clamp-1">
           {poi.name}
         </h3>
 
-        {/* Description */}
+        {/* la descripcion */}
         {poi.description && (
           <p className="text-[10px] text-gray-500 mt-1 line-clamp-2 leading-relaxed">
             {poi.description}
           </p>
         )}
 
-        {/* Address */}
+        {/* estoy todavia lo voya acambiar */}
         <div className="flex items-start gap-1 mt-1.5">
           <IoLocationSharp className="text-gray-400 text-[9px] flex-shrink-0 mt-0.5" />
           <p className="text-[9px] text-gray-400 line-clamp-1">{poi.address}</p>

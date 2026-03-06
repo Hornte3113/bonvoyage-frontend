@@ -22,7 +22,7 @@ type Props = {
 export default function POIMap({ places, selectedId, onSelectId, center }: Props) {
   const mapRef = useRef<MapRef>(null);
 
-  // Fly to selected POI
+  
   useEffect(() => {
     if (!selectedId || !mapRef.current) return;
     const poi = places.find((p) => p.id === selectedId);

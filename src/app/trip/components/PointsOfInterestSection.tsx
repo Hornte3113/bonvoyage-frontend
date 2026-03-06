@@ -135,7 +135,7 @@ export default function PointsOfInterestSection({ destination, onAddToItinerary 
 
       <div className="flex gap-4 items-start">
 
-        {/* Cards grid */}
+        
         <div className="flex-1 overflow-y-auto max-h-[580px] pr-1">
           {filtered.length === 0 ? (
             <p className="text-sm text-gray-400 py-10 text-center">Sin resultados para "{query}"</p>
@@ -157,7 +157,7 @@ export default function PointsOfInterestSection({ destination, onAddToItinerary 
           )}
         </div>
 
-        {/* Right column: map + detail panel */}
+
         <div className="w-72 flex-shrink-0 sticky top-16 h-[580px] flex flex-col gap-3">
 
           {/* Map */}
@@ -170,7 +170,7 @@ export default function PointsOfInterestSection({ destination, onAddToItinerary 
             />
           </div>
 
-          {/* Detail panel */}
+      
           <div className="flex-1 overflow-y-auto bg-white rounded-2xl border border-gray-100 shadow-sm min-h-0">
             {selectedPlace ? (
               <>
@@ -184,10 +184,10 @@ export default function PointsOfInterestSection({ destination, onAddToItinerary 
                   </div>
                 )}
                 <div className="p-3 space-y-2">
-                  {/* Name */}
+                 
                   <h3 className="font-bold text-gray-800 text-sm leading-snug">{selectedPlace.name}</h3>
 
-                  {/* Rating + Price */}
+                  
                   <div className="flex items-center gap-2 flex-wrap">
                     {selectedPlace.rating && (
                       <div className="flex items-center gap-1">
@@ -212,18 +212,17 @@ export default function PointsOfInterestSection({ destination, onAddToItinerary 
                     )}
                   </div>
 
-                  {/* Description */}
+                  
                   {selectedPlace.description && (
                     <p className="text-xs text-gray-600 leading-relaxed">{selectedPlace.description}</p>
                   )}
 
-                  {/* Address */}
                   <div className="flex items-start gap-1.5">
                     <IoLocationSharp className="text-gray-400 text-xs flex-shrink-0 mt-0.5" />
                     <p className="text-xs text-gray-500">{selectedPlace.address}</p>
                   </div>
 
-                  {/* Add to itinerary */}
+               
                   {!detailPickerOpen ? (
                     <button
                       onClick={() => setDetailPickerOpen(true)}

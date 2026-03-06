@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import TripHeader from "./components/TripHeader";
 import TripNav from "./components/TripNav";
@@ -8,8 +8,10 @@ import FlightsSection from "./components/FlightsSection";
 import HotelsSection from "./components/HotelsSection";
 import PointsOfInterestSection from "./components/PointsOfInterestSection";
 import RestaurantsSection from "./components/RestaurantsSection";
+import ItinerarySection from "./components/ItinerarySection";
+import type { ItineraryItem, TripItinerary } from "./types";
 
-export type TripSection = "vuelos" | "hospedaje" | "puntos" | "restaurantes";
+export type TripSection = "vuelos" | "hospedaje" | "puntos" | "restaurantes" | "itinerario";
 
 function TripPageContent() {
   const searchParams = useSearchParams();
@@ -23,11 +25,52 @@ function TripPageContent() {
     photoUrl: searchParams.get("photoUrl") ?? null,
   };
 
+  const storageKey = `itinerary-${destination.lat}-${destination.lng}`;
+
+  const [itinerary, setItinerary] = useState<TripItinerary>({ days: [] });
+
+  useEffect(() => {
+    const stored = localStorage.getItem(storageKey);
+    if (stored) setItinerary(JSON.parse(stored));
+  }, [storageKey]);
+
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(itinerary));
+  }, [itinerary, storageKey]);
+
+  function addToItinerary(item: ItineraryItem, dayNumber: number) {
+    setItinerary((prev) => {
+      const days = prev.days.map((d) => ({ ...d, items: [...d.items] }));
+      const existing = days.find((d) => d.dayNumber === dayNumber);
+      if (existing) {
+        if (existing.items.some((i) => i.id === item.id)) return prev;
+        existing.items.push(item);
+      } else {
+        days.push({ dayNumber, items: [item] });
+        days.sort((a, b) => a.dayNumber - b.dayNumber);
+      }
+      return { days };
+    });
+  }
+
+  function removeFromItinerary(itemId: string, dayNumber: number) {
+    setItinerary((prev) => ({
+      days: prev.days
+        .map((d) =>
+          d.dayNumber === dayNumber
+            ? { ...d, items: d.items.filter((i) => i.id !== itemId) }
+            : d
+        )
+        .filter((d) => d.items.length > 0),
+    }));
+  }
+
   const sectionComponents: Record<TripSection, React.ReactNode> = {
     vuelos: <FlightsSection destination={destination} />,
     hospedaje: <HotelsSection destination={destination} />,
-    puntos: <PointsOfInterestSection destination={destination} />,
-    restaurantes: <RestaurantsSection destination={destination} />,
+    puntos: <PointsOfInterestSection destination={destination} onAddToItinerary={addToItinerary} />,
+    restaurantes: <RestaurantsSection destination={destination} onAddToItinerary={addToItinerary} />,
+    itinerario: <ItinerarySection itinerary={itinerary} onRemove={removeFromItinerary} />,
   };
 
   return (

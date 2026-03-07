@@ -2,7 +2,6 @@
 import { Righteous } from "next/font/google";
 import { AnimatePresence } from "motion/react";
 import React from "react";
-import  Header  from "@/app/components/Header";
 import BackgroundImage from "@/app/components/BackgroundImage";
 import Slides from "@/app/components/Slides";
 import SlideInfo from "@/app/components/SlideInfo";
@@ -47,8 +46,7 @@ export default function Home() {
           transitionData={transitionData}
           currentSlideData={currentSlideData}/>
           <div key="content" className="absolute top-0 left-0 z-20 h-full w-full">
-            <Header />
-            <div className=" flex h-full w-full grid-cols-10 flex-col md:grid">
+            <div className=" flex h-full w-full grid-cols-10 flex-col pt-20 md:grid md:pt-16">
               <div className=" col-span-4 mb-3 flex h-full flex-1 flex-col justify-end px-5 md:mb-0 md:justify-center md:px-10">
                 <SlideInfo
                 transitionData={transitionData}

@@ -57,17 +57,19 @@ function tomorrow() {
 const BACKEND = "https://bonvoyage-backend.vercel.app";
 
 type TripDay = { dayId: string; dayNumber: number; date: string };
-type SavedHotelInfo = { name: string; imageUrl: string | null; price: string };
+type SavedHotelInfo = { name: string; imageUrl: string | null; price: string; externalId?: string };
 
 export default function HotelsSection({
   destination,
   tripId,
   tripDays = [],
+  savedHotelExternalId = null,
   onHotelSave,
 }: {
   destination: Destination;
   tripId?: string;
   tripDays?: TripDay[];
+  savedHotelExternalId?: string | null;
   onHotelSave?: (hotel: SavedHotelInfo) => void;
 }) {
   const { getToken } = useAuth();
@@ -82,7 +84,7 @@ export default function HotelsSection({
   const [error, setError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [savedId, setSavedId] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(savedHotelExternalId ?? null);
   const [selectedDayId, setSelectedDayId] = useState<string>("");
 
   async function handleSearch(e: React.FormEvent<HTMLFormElement>) {
@@ -180,7 +182,7 @@ export default function HotelsSection({
       if (!itemRes.ok) throw new Error("Error al añadir al itinerario");
 
       setSavedId(selectedHotel.id ?? selectedId);
-      onHotelSave?.({ name: selectedHotel.name, imageUrl: selectedHotel.imageUrl, price: selectedHotel.price });
+      onHotelSave?.({ name: selectedHotel.name, imageUrl: selectedHotel.imageUrl, price: selectedHotel.price, externalId: selectedHotel.id ?? undefined });
     } catch {
       // silent
     } finally {

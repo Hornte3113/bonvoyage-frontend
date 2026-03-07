@@ -19,12 +19,28 @@ const BACKEND = "https://bonvoyage-backend.vercel.app";
 function TripPageContent() {
   const searchParams = useSearchParams();
   const { getToken } = useAuth();
-  const [activeSection, setActiveSection] = useState<TripSection>("vuelos");
 
   const tripId = searchParams.get("tripId");
 
+  const [activeSection, setActiveSection] = useState<TripSection>(() => {
+    if (!tripId) return "vuelos";
+    try {
+      const saved = sessionStorage.getItem(`bonvoyage_tab_${tripId}`);
+      if (saved && ["vuelos","hospedaje","puntos","restaurantes","itinerario"].includes(saved))
+        return saved as TripSection;
+    } catch { /* ignore */ }
+    return "vuelos";
+  });
+
+  function handleSectionChange(section: TripSection) {
+    setActiveSection(section);
+    if (tripId) {
+      try { sessionStorage.setItem(`bonvoyage_tab_${tripId}`, section); } catch { /* ignore */ }
+    }
+  }
+
   const [itinerary, setItinerary] = useState<TripItinerary>({ tripId: tripId ?? "", days: [] });
-  const [savedHotel, setSavedHotel] = useState<{ name: string; imageUrl: string | null; price: string } | null>(null);
+  const [savedHotel, setSavedHotel] = useState<{ name: string; imageUrl: string | null; price: string; externalId?: string } | null>(null);
   const [savedFlight, setSavedFlight] = useState<{ airline: string; origin: string | null; destination: string | null; departure: string | null; price: number | null } | null>(null);
   const [loadingTrip, setLoadingTrip] = useState(!!tripId);
   const [tripError, setTripError] = useState<string | null>(null);
@@ -103,23 +119,41 @@ function TripPageContent() {
         dayNumber: d.day_number,
         date: d.day_date?.slice(0, 10) ?? d.date?.slice(0, 10) ?? "",
         items: (d.items ?? [])
-          .filter((item): item is NonNullable<typeof item> => !!item?.item_id && item.item_type === "PLACE")
-          .map((item) => ({
-            itemId: item.item_id,
-            id: item.place_external_id ?? item.place_reference_id ?? item.item_id,
-            type: (
-              item.place_category === "HOTEL" ? "hotel"
-              : item.place_category === "RESTAURANT" ? "restaurant"
-              : "poi"
-            ) as "poi" | "restaurant" | "hotel",
-            name: item.place_name ?? "",
-            address: item.place_address ?? "",
-            lat: item.place_latitude ?? 0,
-            lng: item.place_longitude ?? 0,
-            photoUrl: item.place_photo_url ?? null,
-            rating: item.place_rating ?? null,
-            priceLevel: item.place_price_level ?? null,
-          })),
+          .filter((item): item is NonNullable<typeof item> => !!item?.item_id && (item.item_type === "PLACE" || item.item_type === "FLIGHT"))
+          .map((item) => {
+            if (item.item_type === "FLIGHT") {
+              const origin = item.flight_origin_airport ?? "";
+              const dest   = item.flight_destination_airport ?? "";
+              return {
+                itemId: item.item_id,
+                id: item.flight_reference_id ?? item.item_id,
+                type: "flight" as const,
+                name: item.flight_airline_code ?? "Vuelo",
+                address: origin && dest ? `${origin} → ${dest}` : "",
+                lat: 0,
+                lng: 0,
+                photoUrl: null,
+                rating: null,
+                priceLevel: null,
+              };
+            }
+            return {
+              itemId: item.item_id,
+              id: item.place_external_id ?? item.place_reference_id ?? item.item_id,
+              type: (
+                item.place_category === "HOTEL" ? "hotel"
+                : item.place_category === "RESTAURANT" ? "restaurant"
+                : "poi"
+              ) as "poi" | "restaurant" | "hotel",
+              name: item.place_name ?? "",
+              address: item.place_address ?? "",
+              lat: item.place_latitude ?? 0,
+              lng: item.place_longitude ?? 0,
+              photoUrl: item.place_photo_url ?? null,
+              rating: item.place_rating ?? null,
+              priceLevel: item.place_price_level ?? null,
+            };
+          }),
       }));
 
       setItinerary({ tripId, days });
@@ -136,6 +170,7 @@ function TripPageContent() {
               name: item.place_name,
               imageUrl: item.place_photo_url ?? null,
               price: item.estimated_cost ? `$${item.estimated_cost}` : "",
+              externalId: item.place_external_id ?? undefined,
             });
           }
           if (!flightFound && item.item_type === "FLIGHT" && item.flight_airline_code) {
@@ -316,6 +351,7 @@ function TripPageContent() {
         destination={destination}
         tripId={tripId ?? ""}
         tripDays={tripDays}
+        savedHotelExternalId={savedHotel?.externalId ?? null}
         onHotelSave={(hotel) => setSavedHotel(hotel)}
       />
     ),
@@ -346,7 +382,7 @@ function TripPageContent() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <TripHeader />
-      <TripNav active={activeSection} onChange={setActiveSection} />
+      <TripNav active={activeSection} onChange={handleSectionChange} />
 
       {/* Destination hero */}
       <div className="max-w-6xl mx-auto w-full px-4 pt-6">

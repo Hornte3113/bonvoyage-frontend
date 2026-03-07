@@ -1,6 +1,6 @@
 "use client";
 
-import { IoCalendar, IoCompass, IoRestaurant, IoBed, IoAirplane, IoLocationSharp, IoStar, IoTrash } from "react-icons/io5";
+import { IoCalendar, IoCompass, IoRestaurant, IoBed, IoAirplane, IoArrowForward, IoLocationSharp, IoStar, IoTrash } from "react-icons/io5";
 import type { TripItinerary, ItineraryItem } from "../types";
 
 type SavedHotel = { name: string; imageUrl: string | null; price: string };
@@ -146,7 +146,31 @@ function ItineraryCard({
   item: ItineraryItem;
   onRemove: () => void;
 }) {
-  const Icon = item.type === "poi" ? IoCompass : item.type === "hotel" ? IoBed : IoRestaurant;
+  if (item.type === "flight") {
+    return (
+      <div className="relative bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 group">
+        <button onClick={onRemove} title="Eliminar"
+          className="absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50">
+          <IoTrash className="text-red-400 text-xs" />
+        </button>
+        <div className="w-full h-24 bg-blue-50 flex items-center justify-center">
+          <IoAirplane className="text-3xl text-blue-300" />
+        </div>
+        <div className="p-2.5">
+          <span className="text-[9px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600">Vuelo</span>
+          <h3 className="font-semibold text-gray-800 text-xs leading-tight line-clamp-1 mt-1">{item.name}</h3>
+          {item.address && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <IoArrowForward className="text-gray-300 text-[9px] flex-shrink-0" />
+              <p className="text-[9px] text-gray-400">{item.address}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  const Icon = item.type === "hotel" ? IoBed : item.type === "restaurant" ? IoRestaurant : IoCompass;
 
   return (
     <div className="relative bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 group">
@@ -184,12 +208,10 @@ function ItineraryCard({
           {item.type === "poi" ? "Lugar" : item.type === "hotel" ? "Hotel" : "Restaurante"}
         </span>
 
-       
         <h3 className="font-semibold text-gray-800 text-xs leading-tight line-clamp-2 mt-1">
           {item.name}
         </h3>
 
-        
         {item.rating && (
           <div className="flex items-center gap-1 mt-1">
             <IoStar className="text-amber-400 text-[10px]" />
@@ -200,7 +222,6 @@ function ItineraryCard({
           </div>
         )}
 
-       
         <div className="flex items-start gap-1 mt-1.5">
           <IoLocationSharp className="text-gray-400 text-[9px] flex-shrink-0 mt-0.5" />
           <p className="text-[9px] text-gray-400 line-clamp-1">{item.address}</p>

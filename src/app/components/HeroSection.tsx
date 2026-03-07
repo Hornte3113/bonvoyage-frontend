@@ -40,9 +40,9 @@ export default function HeroSection() {
 
             {/* Stats cards — mitad sobre hero, mitad sobre la siguiente sección */}
             <div className="absolute bottom-0 left-0 right-0 z-20 translate-y-1/2 px-6 md:px-16">
-                <div className="mx-auto grid w-full max-w-4xl grid-cols-2 gap-6 md:grid-cols-4 md:gap-10">
+                <div className="mx-auto grid w-full max-w-5xl grid-cols-2 gap-10 md:grid-cols-4 md:gap-16">
                     {stats.map(({ value, label }) => (
-                        <div key={label} className="flex flex-col items-center justify-center rounded-2xl bg-white px-4 py-6 text-center shadow-lg">
+                        <div key={label} className="flex flex-col items-center justify-center rounded-2xl bg-white px-4 py-6 text-center shadow-lg opacity-85">
                             <span className="text-2xl font-bold text-gray-900 md:text-3xl">{value}</span>
                             <span className="mt-1 text-xs text-gray-500">{label}</span>
                         </div>

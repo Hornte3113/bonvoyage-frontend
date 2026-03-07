@@ -77,39 +77,36 @@ function TripPageContent() {
         items?: Array<{
           item_id: string;
           item_type?: string;
-          place_reference_id?: string;
-          // fields from place_references JOIN (place_ prefix)
-          place_name?: string;
-          place_address?: string;
-          place_latitude?: number;
-          place_longitude?: number;
-          place_photo_url?: string;
-          place_category?: string;
+          place_reference_id?: string | null;
+          flight_reference_id?: string | null;
+          // enriched place fields (from place_references JOIN)
+          place_name?: string | null;
+          place_address?: string | null;
+          place_latitude?: number | null;
+          place_longitude?: number | null;
+          place_photo_url?: string | null;
+          place_category?: string | null;
           place_rating?: number | null;
           place_price_level?: string | null;
+          place_external_id?: string | null;
           estimated_cost?: number | null;
           notes?: string | null;
-          // flight item fields
-          airline_code?: string | null;
-          flight_airline?: string | null;
-          origin_airport?: string | null;
-          flight_origin?: string | null;
-          destination_airport?: string | null;
-          flight_destination?: string | null;
-          departure_time?: string | null;
-          flight_departure?: string | null;
-          price?: number | null;
+          // enriched flight fields (from flight_references JOIN)
+          flight_airline_code?: string | null;
+          flight_origin_airport?: string | null;
+          flight_destination_airport?: string | null;
+          flight_departure_time?: string | null;
           flight_price?: number | null;
         } | null>;
       }) => ({
         dayId: d.day_id,
         dayNumber: d.day_number,
-        date: d.day_date ?? d.date ?? "",
+        date: d.day_date?.slice(0, 10) ?? d.date?.slice(0, 10) ?? "",
         items: (d.items ?? [])
-          .filter((item): item is NonNullable<typeof item> => !!item?.item_id)
+          .filter((item): item is NonNullable<typeof item> => !!item?.item_id && item.item_type === "PLACE")
           .map((item) => ({
             itemId: item.item_id,
-            id: item.place_reference_id ?? item.item_id,
+            id: item.place_external_id ?? item.place_reference_id ?? item.item_id,
             type: (
               item.place_category === "HOTEL" ? "hotel"
               : item.place_category === "RESTAURANT" ? "restaurant"
@@ -128,23 +125,27 @@ function TripPageContent() {
       setItinerary({ tripId, days });
 
       // Restore "Mis ubicaciones" from persisted items
+      let hotelFound = false;
+      let flightFound = false;
       for (const d of (data.days ?? [])) {
         for (const item of (d.items ?? [])) {
           if (!item) continue;
-          if (item.place_category === "HOTEL" && item.place_name) {
+          if (!hotelFound && item.item_type === "PLACE" && item.place_category === "HOTEL" && item.place_name) {
+            hotelFound = true;
             setSavedHotel({
               name: item.place_name,
               imageUrl: item.place_photo_url ?? null,
               price: item.estimated_cost ? `$${item.estimated_cost}` : "",
             });
           }
-          if (item.item_type === "FLIGHT") {
+          if (!flightFound && item.item_type === "FLIGHT" && item.flight_airline_code) {
+            flightFound = true;
             setSavedFlight({
-              airline: item.airline_code ?? item.flight_airline ?? "Aerolínea",
-              origin: item.origin_airport ?? item.flight_origin ?? null,
-              destination: item.destination_airport ?? item.flight_destination ?? null,
-              departure: item.departure_time ?? item.flight_departure ?? null,
-              price: item.price ?? item.flight_price ?? item.estimated_cost ?? null,
+              airline: item.flight_airline_code,
+              origin: item.flight_origin_airport ?? null,
+              destination: item.flight_destination_airport ?? null,
+              departure: item.flight_departure_time ?? null,
+              price: item.flight_price ?? item.estimated_cost ?? null,
             });
           }
         }

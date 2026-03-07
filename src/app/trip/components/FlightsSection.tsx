@@ -102,6 +102,12 @@ export default function FlightsSection({
 }: Props) {
   const { getToken } = useAuth();
 
+    function toISO(dt: string | null | undefined): string {
+    if (!dt) return new Date().toISOString();
+    const d = new Date(dt);
+    return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+  }
+
   async function handleSaveFlight(vuelo: Vuelo, dayId: string) {
     if (!tripId) return;
     const token = await getToken();
@@ -115,8 +121,8 @@ export default function FlightsSection({
         flight_number: vuelo.id ?? "N/A",
         origin_airport: firstLeg?.origen ?? vuelo.origen ?? "UNKNOWN",
         destination_airport: firstLeg?.destino ?? vuelo.destino ?? "UNKNOWN",
-        departure_time: firstLeg?.salida ?? vuelo.salida ?? new Date().toISOString(),
-        arrival_time: firstLeg?.llegada ?? vuelo.llegada ?? new Date().toISOString(),
+        departure_time: toISO(firstLeg?.salida ?? vuelo.salida),
+        arrival_time: toISO(firstLeg?.llegada ?? vuelo.llegada),
         price: vuelo.precio ?? 0,
         currency: "USD",
         api_source: "air-scrapper",

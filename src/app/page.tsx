@@ -7,6 +7,7 @@ import Slides from "@/app/components/Slides";
 import SlideInfo from "@/app/components/SlideInfo";
 import Controls from "@/app/components/Controls";
 import HeroSection from "@/app/components/HeroSection";
+import ProblemSection from "@/app/components/ProblemSection";
 
 
 
@@ -37,6 +38,9 @@ export default function Home() {
     <main className={`${inter.className} select-none antialiased`}>
       {/* Hero Section */}
       <HeroSection />
+
+      {/* Problem Section */}
+      <ProblemSection />
 
       {/* Slider Section */}
       <section className="relative h-screen overflow-hidden bg-black text-white">

@@ -315,6 +315,7 @@ function TripPageContent() {
       <HotelsSection
         destination={destination}
         tripId={tripId ?? ""}
+        tripDays={tripDays}
         onHotelSave={(hotel) => setSavedHotel(hotel)}
       />
     ),

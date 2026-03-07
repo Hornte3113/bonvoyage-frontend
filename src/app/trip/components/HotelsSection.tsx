@@ -56,15 +56,18 @@ function tomorrow() {
 
 const BACKEND = "https://bonvoyage-backend.vercel.app";
 
+type TripDay = { dayId: string; dayNumber: number; date: string };
 type SavedHotelInfo = { name: string; imageUrl: string | null; price: string };
 
 export default function HotelsSection({
   destination,
   tripId,
+  tripDays = [],
   onHotelSave,
 }: {
   destination: Destination;
   tripId?: string;
+  tripDays?: TripDay[];
   onHotelSave?: (hotel: SavedHotelInfo) => void;
 }) {
   const { getToken } = useAuth();
@@ -80,6 +83,7 @@ export default function HotelsSection({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [selectedDayId, setSelectedDayId] = useState<string>("");
 
   async function handleSearch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -140,31 +144,45 @@ export default function HotelsSection({
 
   async function handleSaveToItinerary() {
     if (!selectedHotel || !tripId) return;
+    const dayId = selectedDayId || tripDays[0]?.dayId;
+    if (!dayId) return;
     setSaving(true);
     try {
       const token = await getToken();
-      const res = await fetch(`${BACKEND}/api/hotels/save`, {
+
+      // Step 1: upsert place reference
+      const saveRes = await fetch(`${BACKEND}/api/places/save`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          id: selectedHotel.id,
+          external_id: selectedHotel.id ?? `hotel-${selectedHotel.name}`,
+          category: "HOTEL",
           name: selectedHotel.name,
-          latitude: selectedHotel.latitude,
-          longitude: selectedHotel.longitude,
-          rating: selectedHotel.rating,
-          imageUrl: selectedHotel.imageUrl,
-          price: selectedHotel.price,
-          trip_id: tripId,
+          latitude: selectedHotel.latitude ?? 0,
+          longitude: selectedHotel.longitude ?? 0,
+          rating: typeof selectedHotel.rating === "number" ? selectedHotel.rating : null,
+          photo_url: selectedHotel.imageUrl ?? null,
         }),
       });
-      if (!res.ok) throw new Error("Error al guardar");
+      if (!saveRes.ok) throw new Error("Error al guardar referencia");
+      const { reference_id } = await saveRes.json();
+
+      // Step 2: add to itinerary day
+      const itemRes = await fetch(`${BACKEND}/api/trips/${tripId}/days/${dayId}/items`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          item_type: "PLACE",
+          place_reference_id: reference_id,
+          estimated_cost: parseFloat(String(selectedHotel.price).replace(/[^0-9.]/g, "")) || undefined,
+        }),
+      });
+      if (!itemRes.ok) throw new Error("Error al añadir al itinerario");
+
       setSavedId(selectedHotel.id ?? selectedId);
       onHotelSave?.({ name: selectedHotel.name, imageUrl: selectedHotel.imageUrl, price: selectedHotel.price });
     } catch {
-      // silent — could add error toast here
+      // silent
     } finally {
       setSaving(false);
     }
@@ -377,21 +395,36 @@ export default function HotelsSection({
                     )}
 
                     {tripId && (
-                      <button
-                        onClick={handleSaveToItinerary}
-                        disabled={saving || savedId === (selectedHotel.id ?? selectedId)}
-                        className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-colors
-                          disabled:cursor-not-allowed
-                          bg-blue-500 hover:bg-blue-600 disabled:bg-green-500 text-white"
-                      >
-                        {savedId === (selectedHotel.id ?? selectedId) ? (
-                          <><IoCheckmark className="text-sm" /> Agregado al itinerario</>
-                        ) : saving ? (
-                          "Guardando..."
-                        ) : (
-                          <><IoAdd className="text-sm" /> Agregar al itinerario</>
+                      <div className="space-y-1.5">
+                        {tripDays.length > 1 && (
+                          <select
+                            value={selectedDayId || tripDays[0]?.dayId}
+                            onChange={(e) => setSelectedDayId(e.target.value)}
+                            className="w-full px-2 py-1.5 rounded-lg border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
+                          >
+                            {tripDays.map((d) => (
+                              <option key={d.dayId} value={d.dayId}>
+                                Día {d.dayNumber}{d.date ? ` · ${d.date}` : ""}
+                              </option>
+                            ))}
+                          </select>
                         )}
-                      </button>
+                        <button
+                          onClick={handleSaveToItinerary}
+                          disabled={saving || savedId === (selectedHotel.id ?? selectedId)}
+                          className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-colors
+                            disabled:cursor-not-allowed
+                            bg-blue-500 hover:bg-blue-600 disabled:bg-green-500 text-white"
+                        >
+                          {savedId === (selectedHotel.id ?? selectedId) ? (
+                            <><IoCheckmark className="text-sm" /> Agregado al itinerario</>
+                          ) : saving ? (
+                            "Guardando..."
+                          ) : (
+                            <><IoAdd className="text-sm" /> Agregar al itinerario</>
+                          )}
+                        </button>
+                      </div>
                     )}
                   </div>
                 </>

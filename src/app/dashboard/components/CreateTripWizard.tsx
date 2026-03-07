@@ -73,6 +73,7 @@ export default function CreateTripWizard({ place, onClose }: Props) {
       const body: Record<string, unknown> = {
         trip_name: tripName,
         destination_name: place.name,
+        destination_city: place.name,
         destination_country: place.country,
         latitude: place.lat,
         longitude: place.lng,

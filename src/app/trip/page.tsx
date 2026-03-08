@@ -13,6 +13,7 @@ import ItinerarySection from "./components/ItinerarySection";
 import { IoHeart, IoHeartOutline, IoCheckmarkCircle, IoCloseCircle, IoTrophy, IoEllipsisHorizontalCircle, IoTrashOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import type { ItineraryItem, TripItinerary, DayPlan } from "./types";
+import { useTripTimeTracker } from "@/hooks/useTripTimeTracker";
 
 export type TripSection = "vuelos" | "hospedaje" | "puntos" | "restaurantes" | "itinerario";
 
@@ -51,6 +52,9 @@ function TripPageContent() {
   const togglingFav = useRef(false);
   const [tripStatus, setTripStatus] = useState<"DRAFT" | "CONFIRMED" | "COMPLETED" | "CANCELLED">("DRAFT");
   const [changingStatus, setChangingStatus] = useState(false);
+
+  // Mide el tiempo activo de planificación (solo cuando status === DRAFT)
+  useTripTimeTracker(tripId, tripStatus === "DRAFT");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deletingTrip, setDeletingTrip] = useState(false);
   const [tripMeta, setTripMeta] = useState<{

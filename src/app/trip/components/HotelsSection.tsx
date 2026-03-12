@@ -387,6 +387,7 @@ export default function HotelsSection({
                       )}
                     </div>
                       {/* chancod vercel*/}
+                       {/* checando el vercelito*/}
 
                     {selectedHotel.latitude && selectedHotel.longitude && (
                       <div className="flex items-start gap-1.5">

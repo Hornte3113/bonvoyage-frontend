@@ -118,7 +118,7 @@ function Header({ variant = "dark", onSearch }: Props) {
                                         // Oculta el avatar del trigger para que se vea el overlay
                                         userButtonAvatarBox: profile?.avatar_url ? "opacity-0" : undefined,
                                         // Usa el avatar del backend como fondo en el popup
-                                        userButtonPopoverAvatarBox: profile?.avatar_url
+                                        userPreviewAvatarBox: profile?.avatar_url
                                             ? {
                                                 backgroundImage: `url('${profile.avatar_url}')`,
                                                 backgroundSize: "cover",
@@ -127,7 +127,7 @@ function Header({ variant = "dark", onSearch }: Props) {
                                               }
                                             : undefined,
                                         // Oculta la imagen de Clerk en el popup para que se vea el fondo
-                                        userButtonPopoverAvatarImage: profile?.avatar_url ? "opacity-0" : undefined,
+                                        userPreviewAvatarImage: profile?.avatar_url ? "opacity-0" : undefined,
                                     },
                                 }}
                             >

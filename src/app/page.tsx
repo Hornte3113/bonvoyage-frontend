@@ -10,6 +10,9 @@ export type Data = {
   description: string;
   location: string;
   category?: string;
+  country?: string;
+  lat?: number;
+  lng?: number;
 };
 
 export type CurrentSlideData = {

@@ -1,5 +1,5 @@
 "use client";
-import { Barlow_Condensed } from "next/font/google";
+import { Righteous } from "next/font/google";
 import { AnimatePresence } from "motion/react";
 import React from "react";
 import BackgroundImage from "@/app/components/BackgroundImage";
@@ -9,7 +9,7 @@ import Controls from "@/app/components/Controls";
 import Header from "@/app/components/Header";
 import { Data, CurrentSlideData } from "@/app/page";
 
-const barlow = Barlow_Condensed({ subsets: ["latin"], weight: ["400", "700", "800"] });
+const righteous = Righteous({ subsets: ["latin"], weight: ["400"] });
 
 const sliderData: Data[] = [
   {
@@ -19,6 +19,9 @@ const sliderData: Data[] = [
     description:
       "Explora la magia de la antigua Constantinopla. Desde los intrincados mosaicos de Santa Sofía hasta el bullicio del Gran Bazar, vive una experiencia donde el oriente se encuentra con el occidente.",
     location: "Turquía · Europa & Asia",
+    country: "Turquía",
+    lat: 41.0082,
+    lng: 28.9784,
   },
   {
     img: "/images/slide2.jpg",
@@ -27,6 +30,9 @@ const sliderData: Data[] = [
     description:
       "Camina por la historia viva entre el Big Ben y el London Eye. Desde la elegancia de Notting Hill hasta la vanguardia de Shoreditch, Londres ofrece una mezcla perfecta de tradición real y cultura moderna.",
     location: "Reino Unido · Europa",
+    country: "Reino Unido",
+    lat: 51.5074,
+    lng: -0.1278,
   },
   {
     img: "/images/slide3.png",
@@ -35,6 +41,9 @@ const sliderData: Data[] = [
     description:
       "Admira el horizonte más futurista del mundo desde la cima del Burj Khalifa. Sumérgete en el lujo infinito de sus islas artificiales o vive la adrenalina de un safari por las dunas doradas del desierto.",
     location: "Emiratos Árabes · Medio Oriente",
+    country: "Emiratos Árabes",
+    lat: 25.2048,
+    lng: 55.2708,
   },
   {
     img: "/images/slide4.jpg",
@@ -43,6 +52,9 @@ const sliderData: Data[] = [
     description:
       "Déjate seducir por el encanto de Montmartre y la majestuosidad de la Torre Eiffel. Disfruta de una tarde en los jardines de las Tullerías y descubre por qué París sigue siendo la capital mundial del arte y el romance.",
     location: "Francia · Europa",
+    country: "Francia",
+    lat: 48.8566,
+    lng: 2.3522,
   },
   {
     img: "/images/slide5.jpg",
@@ -51,6 +63,9 @@ const sliderData: Data[] = [
     description:
       "Descubre el universo surrealista de Gaudí en la Sagrada Familia y el Park Güell. Pierde la noción del tiempo en las calles del Barrio Gótico y termina el día disfrutando de la brisa marina en la Barceloneta.",
     location: "España · Mediterráneo",
+    country: "España",
+    lat: 41.3851,
+    lng: 2.1734,
   },
 ];
 
@@ -65,7 +80,7 @@ export default function DestinationsPage() {
   });
 
   return (
-    <main className={`${barlow.className} select-none antialiased`}>
+    <main className={`${righteous.className} select-none antialiased`}>
       <section className="relative h-screen overflow-hidden bg-black text-white">
         <AnimatePresence>
           <BackgroundImage
@@ -73,7 +88,7 @@ export default function DestinationsPage() {
             transitionData={transitionData}
             currentSlideData={currentSlideData}
           />
-          {/* Gradient lateral para legibilidad del texto */}
+          {/* Gradiente lateral para legibilidad */}
           <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
 
           <div key="content" className="absolute top-0 left-0 z-20 h-full w-full">

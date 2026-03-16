@@ -1,9 +1,14 @@
 "use client";
+import { useState } from "react";
 import { motion } from "motion/react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import { IoMdBookmark } from "react-icons/io";
+import { IoCheckmarkOutline } from "react-icons/io5";
 import OtherInfo from "./OtherInfo";
 import { Data, CurrentSlideData } from "@/app/page";
+
+const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 
 type Props = {
     transitionData: Data;
@@ -11,19 +16,76 @@ type Props = {
 };
 
 function SlideInfo({ transitionData, currentSlideData }: Props) {
+    const router = useRouter();
+    const { getToken } = useAuth();
+    const [saved, setSaved] = useState(false);
+
+    const activeData = transitionData ? transitionData : currentSlideData.data;
+
+    const handleAddToWishlist = async () => {
+        try {
+            const token = await getToken();
+            await fetch(`${BACKEND}/api/wishlist`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    city: activeData.title,
+                    country: activeData.country ?? activeData.location,
+                }),
+            });
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+        } catch {
+            // silent fail
+        }
+    };
+
+    const handleCreateTrip = () => {
+        const params = new URLSearchParams({
+            fromWishlist: "1",
+            city: activeData.title,
+            country: activeData.country ?? "",
+            lat: String(activeData.lat ?? ""),
+            lng: String(activeData.lng ?? ""),
+        });
+        router.push(`/dashboard?${params.toString()}`);
+    };
+
     return (
         <>
             <motion.span layout className="mb-2 h-1 w-5 rounded-full bg-white" />
-            <OtherInfo data={transitionData ? transitionData : currentSlideData.data} />
+            <OtherInfo data={activeData} />
             <motion.div layout className="mt-6 flex items-center gap-3">
-                <button className="flex h-[41px] w-[41px] items-center justify-center rounded-full bg-yellow-500 text-xs transition duration-300 ease-in-out hover:opacity-80">
-                    <IoMdBookmark className="text-lg" />
-                </button>
-                <Link href="/dashboard">
-                    <button className="w-fit rounded-full border-[1px] border-[#ffffff8f] px-6 py-3 text-[10px] font-thin uppercase tracking-widest transition duration-300 ease-in-out hover:bg-white hover:text-black">
-                        Crear viaje
+
+                {/* Botón wishlist con tooltip */}
+                <div className="group relative">
+                    <button
+                        onClick={handleAddToWishlist}
+                        className={`flex h-[41px] w-[41px] items-center justify-center rounded-full transition duration-300 ease-in-out hover:opacity-80 ${
+                            saved ? "bg-green-500" : "bg-cyan-500"
+                        }`}
+                    >
+                        {saved
+                            ? <IoCheckmarkOutline className="text-lg text-white" />
+                            : <IoMdBookmark className="text-lg" />
+                        }
                     </button>
-                </Link>
+                    <span className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black/80 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                        Añadir a wishlist
+                    </span>
+                </div>
+
+                {/* Botón crear viaje */}
+                <button
+                    onClick={handleCreateTrip}
+                    className="w-fit rounded-full border-[1px] border-[#ffffff8f] px-6 py-3 text-[10px] font-thin uppercase tracking-widest transition duration-300 ease-in-out hover:bg-white hover:text-black"
+                >
+                    Crear viaje
+                </button>
+
             </motion.div>
         </>
     );

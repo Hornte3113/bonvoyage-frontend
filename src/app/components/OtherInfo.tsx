@@ -1,4 +1,7 @@
+import { Barlow_Condensed } from "next/font/google";
 import { motion } from "motion/react";
+
+const barlow = Barlow_Condensed({ subsets: ["latin"], weight: ["700"] });
 
 type Props = {
     data: any;
@@ -44,13 +47,13 @@ function OtherInfo({ data }: Props) {
             {/* Categoría / región */}
             <AnimatedText
                 id="category"
-                className="mb-3 text-xs uppercase tracking-[3px] text-white/60"
+                className="mb-3 text-xs font-medium uppercase tracking-[3px] text-white/80"
                 data={data?.category ?? data?.location}
             />
-            {/* Título principal — grande y condensado */}
+            {/* Título principal — fuente condensada bold */}
             <AnimatedText
                 id="title"
-                className="text-[4.5rem] font-black uppercase leading-[0.88] tracking-tight text-white md:text-[6rem] lg:text-[8rem]"
+                className={`${barlow.className} text-[4.5rem] font-bold uppercase leading-[0.88] tracking-tight text-white md:text-[6rem] lg:text-[7.5rem]`}
                 data={data?.title}
             />
             {/* Descripción */}

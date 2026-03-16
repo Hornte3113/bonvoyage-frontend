@@ -13,7 +13,7 @@ const righteous = Righteous({ subsets: ["latin"], weight: ["400"] });
 
 const sliderData: Data[] = [
   {
-    img: "/images/slide1.jpg",
+    img: "/images/slide1.png",
     category: "Turquía · Puente entre Continentes",
     title: "Estambul",
     description:
@@ -24,7 +24,7 @@ const sliderData: Data[] = [
     lng: 28.9784,
   },
   {
-    img: "/images/slide2.jpg",
+    img: "/images/slide2.png",
     category: "Reino Unido · El Corazón del Támesis",
     title: "Londres",
     description:
@@ -46,7 +46,7 @@ const sliderData: Data[] = [
     lng: 55.2708,
   },
   {
-    img: "/images/slide4.jpg",
+    img: "/images/slide4.png",
     category: "Francia · La Ciudad de la Luz",
     title: "París",
     description:
@@ -57,7 +57,7 @@ const sliderData: Data[] = [
     lng: 2.3522,
   },
   {
-    img: "/images/slide5.jpg",
+    img: "/images/slide5.png",
     category: "España · Arte y Mediterráneo",
     title: "Barcelona",
     description:

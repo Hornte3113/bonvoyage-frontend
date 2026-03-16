@@ -15,7 +15,7 @@ function Progress({curIndex, length}: Props) {
                 width: (((curIndex + 1 ) / length) * 100).toString() + "%",
 
             }}
-            className={ ` h-[1px] rounded-full bg-yellow-400 bg-opacity-50`}
+            className={ ` h-[1px] rounded-full bg-cyan-500 bg-opacity-50`}
             > </div>
 
         </div>

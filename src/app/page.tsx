@@ -1,6 +1,8 @@
 import { Righteous } from "next/font/google";
 import HeroSection from "@/app/components/HeroSection";
+import HowItWorksSection from "@/app/components/HowItWorksSection";
 import ProblemSection from "@/app/components/ProblemSection";
+import CTASection from "@/app/components/CTASection";
 
 const righteous = Righteous({ subsets: ["latin"], weight: ["400"] });
 
@@ -24,7 +26,9 @@ export default function Home() {
   return (
     <main className={`${righteous.className} select-none antialiased`}>
       <HeroSection />
+      <HowItWorksSection />
       <ProblemSection />
+      <CTASection />
     </main>
   );
 }

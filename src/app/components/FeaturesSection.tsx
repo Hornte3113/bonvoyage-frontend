@@ -36,14 +36,14 @@ export default function FeaturesSection() {
 
         {/* Top row: título + botón */}
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <h2 className="text-5xl font-black uppercase leading-[1.05] tracking-tight text-slate-900 md:text-6xl lg:text-7xl">
+          <h2 className="text-4xl font-black uppercase leading-[1.05] tracking-tight text-slate-900 md:text-5xl lg:text-6xl">
             TODO LO QUE NECESITAS
             <br />
             <span className="text-slate-300">PARA TU VIAJE</span>
           </h2>
           <div className="shrink-0 self-start md:pt-3">
             <Link href="/dashboard">
-              <button className="bg-slate-900 px-8 py-3 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-slate-700">
+              <button className="rounded-full bg-slate-900 px-8 py-3 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-slate-700">
                 EXPLORAR AHORA
               </button>
             </Link>
@@ -53,7 +53,7 @@ export default function FeaturesSection() {
         {/* Bottom row: imagen + features */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {/* Imagen */}
-          <div className="relative h-72 overflow-hidden rounded-2xl md:h-auto">
+          <div className="relative h-96 overflow-hidden rounded-2xl md:h-auto">
             <img
               src="/images/slide1.png"
               alt="Destino de viaje"

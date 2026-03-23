@@ -149,8 +149,10 @@ export default function CreateTripWizard({ place, onClose }: Props) {
         throw new Error(err.error ?? `Error ${res.status}`);
       }
 
-      const data = await res.json();
+      const raw = await res.json();
+      const data = raw?.data ?? raw;
       const tripId = data.trip_id ?? data.id ?? data.tripId;
+      if (!tripId) throw new Error("No se pudo obtener el ID del viaje");
 
       const params = new URLSearchParams({
         tripId,

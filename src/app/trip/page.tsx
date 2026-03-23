@@ -24,7 +24,10 @@ function TripPageContent() {
   const { getToken } = useAuth();
   const router = useRouter();
 
-  const tripId = searchParams?.get("tripId") ?? null;
+  const rawTripId = searchParams?.get("tripId") ?? null;
+  // Guard against literal "undefined" / "null" strings that sneak in when the
+  // wizard navigates before the trip creation response resolves the ID.
+  const tripId = rawTripId && rawTripId !== "undefined" && rawTripId !== "null" ? rawTripId : null;
 
   const [activeSection, setActiveSection] = useState<TripSection>(() => {
     if (!tripId) return "vuelos";
@@ -98,19 +101,12 @@ function TripPageContent() {
     setLoadingTrip(true);
     try {
       const token = await getToken();
-      // Retry up to 2× on 500/400 — race condition right after trip creation
-      const isRetryable = (s: number) => s === 500 || s === 400;
+      // Retry once on 500/400 — race condition right after trip creation
       let res = await fetch(`${BACKEND}/api/v1/trips/${tripId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (isRetryable(res.status)) {
-        await new Promise((r) => setTimeout(r, 2000));
-        res = await fetch(`${BACKEND}/api/v1/trips/${tripId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
-      if (isRetryable(res.status)) {
-        await new Promise((r) => setTimeout(r, 2000));
+      if (res.status === 500 || res.status === 400) {
+        await new Promise((r) => setTimeout(r, 1500));
         res = await fetch(`${BACKEND}/api/v1/trips/${tripId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -499,7 +495,7 @@ function TripPageContent() {
   }
 
   async function removeFromItinerary(itemId: string, dayNumber: number) {
-    if (tripStatus !== "DRAFT") return; // trip locked
+    if (!tripId || tripStatus !== "DRAFT") return;
     const day = itinerary.days.find((d) => d.dayNumber === dayNumber);
     if (!day) return;
 

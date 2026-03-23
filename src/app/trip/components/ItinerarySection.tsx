@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, type ReactElement } from "react";
+import { useState, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useAuth } from "@clerk/nextjs";
 import {
@@ -24,8 +24,16 @@ const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 
 type LiveHours = { isOpenNow: boolean | null; todayHours: string | null; weeklyHours: string[] | null };
 
-type BudgetItem = { name: string; type: string; estimated_cost: number | null; day_number?: number | null };
-type Budget = { total_estimated_cost: number; currency?: string; items?: BudgetItem[] };
+type Budget = {
+  ticket_id: string;
+  presupuesto_total: number;
+  costo_acumulado: number;
+  balance_disponible: number;
+  total_lugares: number;
+  total_vuelos: number;
+  total_items: number;
+  estado_presupuesto: string;
+};
 
 type SavedHotel = { name: string; imageUrl: string | null; price: string };
 type SavedFlight = { airline: string; origin: string | null; destination: string | null; departure: string | null; price: number | null };
@@ -342,9 +350,8 @@ export default function ItinerarySection({
             >
               <IoWallet className="text-blue-500 text-sm" />
               <span className="text-xs font-bold text-blue-600">
-                ${budget.total_estimated_cost.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                ${budget.costo_acumulado.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })} USD
               </span>
-              <span className="text-[10px] text-gray-400">{budget.currency ?? "USD"}</span>
               <IoChevronForward className="text-gray-300 text-xs group-hover:text-blue-400 transition-colors" />
             </button>
           )}
@@ -508,6 +515,7 @@ export default function ItinerarySection({
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setBudgetOpen(false)} />
           <div className="relative w-full max-w-sm bg-white h-full shadow-2xl flex flex-col">
+
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <div className="flex items-center gap-2">
@@ -519,59 +527,68 @@ export default function ItinerarySection({
               </button>
             </div>
 
-            {/* Total */}
-            <div className="px-5 py-4 bg-blue-50 border-b border-blue-100">
-              <p className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-0.5">Total estimado</p>
-              <p className="text-3xl font-bold text-blue-600">
-                ${budget.total_estimated_cost.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                <span className="text-sm font-normal text-blue-400 ml-1">{budget.currency ?? "USD"}</span>
+            {/* Estado badge + presupuesto total */}
+            <div className={`px-5 py-4 border-b ${budget.estado_presupuesto === "EXCEDIDO" ? "bg-red-50 border-red-100" : "bg-blue-50 border-blue-100"}`}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Presupuesto total</p>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  budget.estado_presupuesto === "EXCEDIDO"
+                    ? "bg-red-100 text-red-600"
+                    : budget.estado_presupuesto === "EN_RANGO"
+                    ? "bg-green-100 text-green-600"
+                    : "bg-gray-100 text-gray-500"
+                }`}>
+                  {budget.estado_presupuesto === "EXCEDIDO" ? "Excedido" : budget.estado_presupuesto === "EN_RANGO" ? "En rango" : budget.estado_presupuesto}
+                </span>
+              </div>
+              <p className="text-3xl font-bold text-gray-800">
+                ${budget.presupuesto_total.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                <span className="text-sm font-normal text-gray-400 ml-1">USD</span>
               </p>
             </div>
 
-            {/* Items */}
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2">
-              {budget.items && budget.items.length > 0 ? (
-                <>
-                  {/* Group by type */}
-                  {(["FLIGHT", "HOTEL", "PLACE", "RESTAURANT", "POI"] as const).map((type) => {
-                    const group = budget.items!.filter((i) => i.type === type && i.estimated_cost != null);
-                    if (group.length === 0) return null;
-                    const groupTotal = group.reduce((s, i) => s + (i.estimated_cost ?? 0), 0);
-                    const labels: Record<string, { label: string; icon: ReactElement; cls: string }> = {
-                      FLIGHT: { label: "Vuelos", icon: <IoAirplane className="text-blue-500 text-xs" />, cls: "bg-blue-50 text-blue-600" },
-                      HOTEL: { label: "Hotel", icon: <IoBed className="text-purple-500 text-xs" />, cls: "bg-purple-50 text-purple-600" },
-                      PLACE: { label: "Actividades", icon: <IoCompass className="text-blue-400 text-xs" />, cls: "bg-blue-50 text-blue-500" },
-                      RESTAURANT: { label: "Restaurantes", icon: <IoRestaurant className="text-orange-500 text-xs" />, cls: "bg-orange-50 text-orange-500" },
-                      POI: { label: "Actividades", icon: <IoCompass className="text-blue-400 text-xs" />, cls: "bg-blue-50 text-blue-500" },
-                    };
-                    const meta = labels[type];
-                    return (
-                      <div key={type} className="bg-gray-50 rounded-xl overflow-hidden">
-                        <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
-                          <div className="flex items-center gap-1.5">
-                            {meta.icon}
-                            <span className="text-xs font-semibold text-gray-600">{meta.label}</span>
-                          </div>
-                          <span className="text-xs font-bold text-gray-700">
-                            ${groupTotal.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                          </span>
-                        </div>
-                        {group.map((item, idx) => (
-                          <div key={idx} className="flex items-center justify-between px-3 py-1.5">
-                            <span className="text-[11px] text-gray-500 line-clamp-1 flex-1 pr-2">{item.name}</span>
-                            <span className="text-[11px] font-semibold text-gray-600 flex-shrink-0">
-                              ${(item.estimated_cost ?? 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </>
-              ) : (
-                <p className="text-xs text-gray-400 text-center pt-8">No hay items con costo estimado.</p>
-              )}
+            {/* Costo / Balance */}
+            <div className="flex border-b border-gray-100">
+              <div className="flex-1 px-5 py-4 border-r border-gray-100">
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Costo acumulado</p>
+                <p className="text-xl font-bold text-gray-800">
+                  ${budget.costo_acumulado.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </p>
+              </div>
+              <div className="flex-1 px-5 py-4">
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Balance disponible</p>
+                <p className={`text-xl font-bold ${budget.balance_disponible < 0 ? "text-red-500" : "text-green-600"}`}>
+                  ${budget.balance_disponible.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                </p>
+              </div>
             </div>
+
+            {/* Stats */}
+            <div className="px-5 py-4 space-y-2">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Desglose</p>
+              <div className="flex items-center justify-between py-2 border-b border-gray-50">
+                <div className="flex items-center gap-2">
+                  <IoAirplane className="text-blue-400 text-sm" />
+                  <span className="text-sm text-gray-600">Vuelos</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-700">{budget.total_vuelos}</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b border-gray-50">
+                <div className="flex items-center gap-2">
+                  <IoCompass className="text-blue-400 text-sm" />
+                  <span className="text-sm text-gray-600">Lugares</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-700">{budget.total_lugares}</span>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-2">
+                  <IoCalendar className="text-blue-400 text-sm" />
+                  <span className="text-sm text-gray-600">Total items</span>
+                </div>
+                <span className="text-sm font-semibold text-gray-700">{budget.total_items}</span>
+              </div>
+            </div>
+
           </div>
         </div>
       )}

@@ -130,6 +130,7 @@ function TripPageContent() {
           end_time?: string | null;
           estimated_cost?: number | null;
           notes?: string | null;
+          extended_data?: string | null;
           // enriched flight fields (from flight_references JOIN)
           flight_airline_code?: string | null;
           flight_origin_airport?: string | null;
@@ -160,6 +161,10 @@ function TripPageContent() {
                 priceLevel: null,
               };
             }
+            const ext = (() => {
+              try { return item.extended_data ? JSON.parse(item.extended_data) : {}; }
+              catch { return {}; }
+            })();
             return {
               itemId: item.item_id,
               id: item.place_external_id ?? item.place_reference_id ?? item.item_id,
@@ -179,6 +184,9 @@ function TripPageContent() {
               endTime: item.end_time ?? null,
               estimatedCost: item.estimated_cost ?? null,
               notes: item.notes ?? null,
+              isOpenNow: ext.is_open_now ?? null,
+              todayHours: ext.today_hours ?? null,
+              weeklyHours: ext.weekly_hours ?? null,
             };
           }),
       }));
@@ -395,6 +403,9 @@ function TripPageContent() {
           start_time: options?.start_time ?? null,
           end_time: options?.end_time ?? null,
           notes: options?.notes ?? null,
+          todayHours: item.todayHours ?? null,
+          weeklyHours: item.weeklyHours ?? null,
+          isOpenNow: item.isOpenNow ?? null,
         }),
       });
     } catch {

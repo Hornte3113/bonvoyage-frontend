@@ -71,13 +71,7 @@ export default function ItinerarySection({
     setShowWeeklyHours(false);
     if (id) {
       const found = itinerary.days.flatMap(d => d.items).find(i => i.id === id);
-      console.log("[ItinerarySection] item seleccionado:", JSON.stringify({
-        id: found?.id,
-        isOpenNow: found?.isOpenNow,
-        todayHours: found?.todayHours,
-        weeklyHours: found?.weeklyHours,
-        startTime: found?.startTime,
-      }, null, 2));
+      if (found) console.log(`[lat/lng] ${found.name}: lat=${found.lat}, lng=${found.lng}`);
     }
   }
 

@@ -326,13 +326,28 @@ export default function ItinerarySection({
           </div>
         )}
 
-        {/* Summary */}
-        <div className="flex items-center gap-2 text-gray-500 text-sm">
-          <IoCalendar className="text-blue-400" />
-          <span>
-            {itinerary.days.length} día{itinerary.days.length !== 1 ? "s" : ""} &middot;{" "}
-            {totalItems} actividad{totalItems !== 1 ? "es" : ""}
-          </span>
+        {/* Summary + budget chip */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-gray-500 text-sm">
+            <IoCalendar className="text-blue-400" />
+            <span>
+              {itinerary.days.length} día{itinerary.days.length !== 1 ? "s" : ""} &middot;{" "}
+              {totalItems} actividad{totalItems !== 1 ? "es" : ""}
+            </span>
+          </div>
+          {budget && (
+            <button
+              onClick={() => setBudgetOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-xl border border-gray-200 shadow-sm hover:border-blue-300 hover:bg-blue-50 transition-colors group"
+            >
+              <IoWallet className="text-blue-500 text-sm" />
+              <span className="text-xs font-bold text-blue-600">
+                ${budget.total_estimated_cost.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </span>
+              <span className="text-[10px] text-gray-400">{budget.currency ?? "USD"}</span>
+              <IoChevronForward className="text-gray-300 text-xs group-hover:text-blue-400 transition-colors" />
+            </button>
+          )}
         </div>
 
         {/* All days — single DndContext for cross-day drag */}
@@ -416,6 +431,14 @@ export default function ItinerarySection({
                     <input type="time" value={editEndTime} onChange={(e) => setEditEndTime(e.target.value)}
                       className="w-full mt-1 px-2 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                   </div>
+                </div>
+              )}
+              {editingItem.item.type !== "hotel" && (
+                <div>
+                  <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Costo estimado (USD)</label>
+                  <input type="number" min={0} value={editCost} onChange={(e) => setEditCost(e.target.value)}
+                    placeholder="0"
+                    className="w-full mt-1 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
                 </div>
               )}
               <div>
@@ -557,26 +580,6 @@ export default function ItinerarySection({
       {showMap && (
         <div className="w-[380px] flex-shrink-0 pr-4 pt-6 pb-10">
           <div className="sticky top-4 flex flex-col gap-3">
-
-            {/* Budget chip */}
-            {budget && (
-              <button
-                onClick={() => setBudgetOpen(true)}
-                className="flex items-center justify-between w-full px-3 py-2 bg-white rounded-xl border border-gray-100 shadow-sm hover:border-blue-200 hover:bg-blue-50 transition-colors group"
-              >
-                <div className="flex items-center gap-2">
-                  <IoWallet className="text-blue-500 text-sm" />
-                  <span className="text-xs font-semibold text-gray-700">Total estimado</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-bold text-blue-600">
-                    ${budget.total_estimated_cost.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                    <span className="text-[10px] font-normal text-gray-400 ml-1">{budget.currency ?? "USD"}</span>
-                  </span>
-                  <IoChevronForward className="text-gray-400 text-xs group-hover:text-blue-400 transition-colors" />
-                </div>
-              </button>
-            )}
 
             {/* Legend */}
             <div className="flex items-center gap-4 text-[10px] text-gray-500 px-1">

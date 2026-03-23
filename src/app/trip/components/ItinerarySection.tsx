@@ -88,8 +88,10 @@ export default function ItinerarySection({
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok || cancelled) return;
-      const data = await res.json();
-      if (!cancelled) setBudget(data);
+      const json = await res.json();
+      // handle possible { data: {...} } wrapper
+      const data = json?.data ?? json;
+      if (!cancelled && data?.ticket_id) setBudget(data);
     }
     fetchBudget().catch(() => {});
     return () => { cancelled = true; };
@@ -352,7 +354,7 @@ export default function ItinerarySection({
             >
               <IoWallet className="text-blue-500 text-sm" />
               <span className="text-xs font-bold text-blue-600">
-                ${budget.costo_acumulado.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })} USD
+                ${(budget.costo_acumulado ?? 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })} USD
               </span>
               <IoChevronForward className="text-gray-300 text-xs group-hover:text-blue-400 transition-colors" />
             </button>
@@ -545,7 +547,7 @@ export default function ItinerarySection({
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.badge}`}>{s.label}</span>
                   </div>
                   <p className="text-3xl font-bold text-gray-800">
-                    ${budget.presupuesto_total.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    ${(budget.presupuesto_total ?? 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     <span className="text-sm font-normal text-gray-400 ml-1">USD</span>
                   </p>
                 </div>
@@ -557,13 +559,13 @@ export default function ItinerarySection({
               <div className="flex-1 px-5 py-4 border-r border-gray-100">
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Costo acumulado</p>
                 <p className="text-xl font-bold text-gray-800">
-                  ${budget.costo_acumulado.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  ${(budget.costo_acumulado ?? 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </p>
               </div>
               <div className="flex-1 px-5 py-4">
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Balance disponible</p>
-                <p className={`text-xl font-bold ${budget.balance_disponible < 0 ? "text-red-500" : "text-green-600"}`}>
-                  ${budget.balance_disponible.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                <p className={`text-xl font-bold ${(budget.balance_disponible ?? 0) < 0 ? "text-red-500" : "text-green-600"}`}>
+                  ${(budget.balance_disponible ?? 0).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </p>
               </div>
             </div>

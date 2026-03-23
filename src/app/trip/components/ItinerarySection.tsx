@@ -534,10 +534,10 @@ export default function ItinerarySection({
             {/* Estado badge + presupuesto total */}
             {(() => {
               const ESTADO: Record<string, { bg: string; badge: string; label: string }> = {
-                EN_RANGO:    { bg: "bg-blue-50 border-blue-100",   badge: "bg-green-100 text-green-700",  label: "En rango" },
-                ADVERTENCIA: { bg: "bg-amber-50 border-amber-100", badge: "bg-amber-100 text-amber-700",  label: "Advertencia" },
-                EXCEDIDO:    { bg: "bg-red-50 border-red-100",     badge: "bg-red-100 text-red-600",      label: "Excedido" },
-                SIN_DATOS:   { bg: "bg-gray-50 border-gray-100",   badge: "bg-gray-100 text-gray-500",    label: "Sin datos" },
+                WITHIN_BUDGET:  { bg: "bg-blue-50 border-blue-100",   badge: "bg-green-100 text-green-700",  label: "En rango" },
+                WARNING:        { bg: "bg-amber-50 border-amber-100", badge: "bg-amber-100 text-amber-700",  label: "Advertencia" },
+                OVER_BUDGET:    { bg: "bg-red-50 border-red-100",     badge: "bg-red-100 text-red-600",      label: "Excedido" },
+                WITHOUT_DATA:   { bg: "bg-gray-50 border-gray-100",   badge: "bg-gray-100 text-gray-500",    label: "Sin datos" },
               };
               const s = ESTADO[budget.budget_status] ?? ESTADO.SIN_DATOS;
               return (

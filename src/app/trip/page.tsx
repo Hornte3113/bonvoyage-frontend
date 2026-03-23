@@ -584,6 +584,7 @@ function TripPageContent() {
     ),
     itinerario: (
       <ItinerarySection
+        tripId={tripId ?? undefined}
         itinerary={itinerary}
         onRemove={removeFromItinerary}
         onReorder={reorderItinerary}

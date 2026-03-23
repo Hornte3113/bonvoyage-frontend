@@ -126,6 +126,8 @@ function TripPageContent() {
           place_rating?: number | null;
           place_price_level?: string | null;
           place_external_id?: string | null;
+          start_time?: string | null;
+          end_time?: string | null;
           estimated_cost?: number | null;
           notes?: string | null;
           // enriched flight fields (from flight_references JOIN)
@@ -173,6 +175,10 @@ function TripPageContent() {
               photoUrl: item.place_photo_url ?? null,
               rating: item.place_rating ?? null,
               priceLevel: item.place_price_level ?? null,
+              startTime: item.start_time ?? null,
+              endTime: item.end_time ?? null,
+              estimatedCost: item.estimated_cost ?? null,
+              notes: item.notes ?? null,
             };
           }),
       }));
@@ -334,7 +340,7 @@ function TripPageContent() {
           ...prev,
           days: prev.days.map((d) =>
             d.dayNumber === dayNumber
-              ? { ...d, items: [...d.items, { ...item, itemId: tempId }] }
+              ? { ...d, items: [...d.items, { ...item, itemId: tempId, startTime: options?.start_time ?? null, endTime: options?.end_time ?? null, notes: options?.notes ?? null }] }
               : d
           ),
         };
@@ -344,7 +350,7 @@ function TripPageContent() {
         ...prev,
         days: [
           ...prev.days,
-          { dayId: `placeholder-${dayNumber}`, dayNumber, date: "", items: [{ ...item, itemId: tempId }] },
+          { dayId: `placeholder-${dayNumber}`, dayNumber, date: "", items: [{ ...item, itemId: tempId, startTime: options?.start_time ?? null, endTime: options?.end_time ?? null, notes: options?.notes ?? null }] },
         ].sort((a, b) => a.dayNumber - b.dayNumber),
       };
     });

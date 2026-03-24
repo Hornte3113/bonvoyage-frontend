@@ -754,7 +754,7 @@ function TripPageContent() {
           <div className="absolute bottom-24 left-7">
             <div className="mb-2 h-[2px] w-6 rounded-full bg-white" />
             {destination.country && (
-              <p className="mb-1 text-[11px] uppercase tracking-widest text-white/60">
+              <p className="mb-1 text-[11px] uppercase tracking-widest text-white/80">
                 {destination.country}
               </p>
             )}

@@ -104,7 +104,7 @@ function Header({ variant = "dark", onSearch }: Props) {
                             </button>
                         </SignInButton>
                         <SignUpButton mode="modal">
-                            <button className="px-3 py-1 rounded bg-yellow-500 text-black hover:bg-yellow-400 transition duration-300">
+                            <button className="px-3 py-1 rounded bg-cyan-500 text-black hover:bg-cyan-600 transition duration-300">
                                 Registrarse
                             </button>
                         </SignUpButton>

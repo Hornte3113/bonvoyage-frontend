@@ -100,12 +100,12 @@ function Header({ variant = "dark", onSearch }: Props) {
                     <SignedOut>
                         <SignInButton mode="modal">
                             <button data-testid="sign-in-button" className={`px-3 py-1 rounded border ${isLight ? "border-gray-400 text-gray-700 hover:bg-gray-100" : "border-white/50 hover:bg-white hover:text-black"} transition duration-300`}>
-                                Sign In
+                                Iniciar sesión
                             </button>
                         </SignInButton>
                         <SignUpButton mode="modal">
                             <button className="px-3 py-1 rounded bg-yellow-500 text-black hover:bg-yellow-400 transition duration-300">
-                                Sign Up
+                                Registrarse
                             </button>
                         </SignUpButton>
                     </SignedOut>

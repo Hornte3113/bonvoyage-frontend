@@ -48,7 +48,7 @@ export default function TripHeader() {
         <SignedOut>
           <SignInButton mode="modal">
             <button className="px-3 py-1 rounded border border-gray-400 text-gray-700 text-xs hover:bg-gray-100 transition">
-              Sign In
+              Iniciar sesión
             </button>
           </SignInButton>
         </SignedOut>

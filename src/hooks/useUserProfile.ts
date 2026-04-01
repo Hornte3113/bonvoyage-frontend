@@ -12,6 +12,7 @@ export type UserProfile = {
   last_name: string;
   avatar_name: string | null;
   avatar_url: string | null;
+  role: 'USER' | 'ADMIN';
 };
 
 export type Avatar = {

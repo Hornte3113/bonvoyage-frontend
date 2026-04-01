@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import {
   IoPeopleOutline, IoAirplaneOutline, IoCheckmarkCircleOutline,
   IoTimeOutline, IoCalendarOutline, IoAlertCircleOutline,
@@ -126,6 +127,7 @@ const TABS: { k: Tab; label: string }[] = [
 ═══════════════════════════════════════════════════════════════════════ */
 export default function AdminPage() {
   const { getToken } = useAuth();
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>("resumen");
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [recentTrips, setRecentTrips] = useState<AdminTrip[]>([]);
@@ -146,8 +148,13 @@ export default function AdminPage() {
         fetch(`${BACKEND}/api/v1/admin/trips?page=1&limit=4`, { headers: h }),
         fetch(`${BACKEND}/api/v1/admin/hypothesis`, { headers: h }),
       ]);
-      if (!sRes.ok)
-        throw new Error(sRes.status === 403 ? "Sin permisos de administrador" : `Error ${sRes.status}`);
+      if (!sRes.ok) {
+        if (sRes.status === 403) {
+          router.replace("/dashboard");
+          return;
+        }
+        throw new Error(`Error ${sRes.status}`);
+      }
       const sd = await sRes.json();
       setStats(sd?.data ?? sd);
       if (tRes.ok) {

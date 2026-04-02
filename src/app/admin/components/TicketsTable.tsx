@@ -11,12 +11,12 @@ type AdminTicket = {
   trip_id: string;
   trip_name: string;
   user_email: string;
-  presupuesto_total: number;
-  costo_acumulado: number;
-  balance_disponible: number;
-  estado_presupuesto: string;
-  total_lugares: number;
-  total_vuelos: number;
+  total_budget: number;
+  accumulated_cost: number;
+  available_balance: number;
+  budget_status: string;
+  total_places: number;
+  total_flights: number;
   total_items: number;
 };
 
@@ -126,13 +126,13 @@ export default function TicketsTable() {
                   </tr>
                 ))
               : tickets.map((t) => {
-                  const est = ESTADO_MAP[t.estado_presupuesto] ?? { label: t.estado_presupuesto, cls: "bg-gray-50 text-gray-400 border-gray-200" };
-                  const pct = t.presupuesto_total > 0
-                    ? Math.min(100, Math.round((t.costo_acumulado / t.presupuesto_total) * 100))
+                  const est = ESTADO_MAP[t.budget_status] ?? { label: t.budget_status, cls: "bg-gray-50 text-gray-400 border-gray-200" };
+                  const pct = t.total_budget > 0
+                    ? Math.min(100, Math.round((t.accumulated_cost / t.total_budget) * 100))
                     : 0;
-                  const barColor = t.estado_presupuesto === "OVER_BUDGET"
+                  const barColor = t.budget_status === "OVER_BUDGET"
                     ? "#ef4444"
-                    : t.estado_presupuesto === "WARNING"
+                    : t.budget_status === "WARNING"
                     ? "#f59e0b"
                     : "#22c55e";
 
@@ -145,24 +145,24 @@ export default function TicketsTable() {
                         </div>
                       </td>
                       <td className="px-6 py-3.5 text-gray-400 text-xs max-w-[140px] truncate">{t.user_email}</td>
-                      <td className="px-6 py-3.5 text-gray-700 tabular-nums font-medium">{fmt(t.presupuesto_total)}</td>
+                      <td className="px-6 py-3.5 text-gray-700 tabular-nums font-medium">{fmt(t.total_budget)}</td>
                       <td className="px-6 py-3.5">
                         <div className="space-y-1">
-                          <span className="text-gray-700 tabular-nums font-medium">{fmt(t.costo_acumulado)}</span>
-                          {t.presupuesto_total > 0 && (
+                          <span className="text-gray-700 tabular-nums font-medium">{fmt(t.accumulated_cost)}</span>
+                          {t.total_budget > 0 && (
                             <div className="h-1.5 w-24 bg-gray-100 rounded-full overflow-hidden">
                               <div className="h-full rounded-full" style={{ width: `${pct}%`, background: barColor }} />
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className={`px-6 py-3.5 tabular-nums font-medium ${(t.balance_disponible ?? 0) < 0 ? "text-red-500" : "text-gray-700"}`}>
-                        {fmt(t.balance_disponible)}
+                      <td className={`px-6 py-3.5 tabular-nums font-medium ${(t.available_balance ?? 0) < 0 ? "text-red-500" : "text-gray-700"}`}>
+                        {fmt(t.available_balance)}
                       </td>
                       <td className="px-6 py-3.5 text-gray-500 text-xs tabular-nums">
                         <span>{t.total_items ?? 0} total</span>
                         <span className="text-gray-300 mx-1">·</span>
-                        <span>{t.total_vuelos ?? 0} vuelos</span>
+                        <span>{t.total_flights ?? 0} vuelos</span>
                       </td>
                       <td className="px-6 py-3.5">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${est.cls}`}>

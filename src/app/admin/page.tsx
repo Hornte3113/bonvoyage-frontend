@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { UserButton } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { IoArrowBack } from "react-icons/io5";
 import {
   IoPeopleOutline, IoAirplaneOutline, IoCheckmarkCircleOutline,
   IoTimeOutline, IoCalendarOutline, IoAlertCircleOutline,
@@ -187,18 +186,9 @@ export default function AdminPage() {
 
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push("/dashboard")}
-              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 bg-white border border-gray-200 rounded-xl px-3 py-2 shadow-sm transition-colors"
-            >
-              <IoArrowBack className="text-base" />
-              Regresar
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Panel de administración</h1>
-              <p className="text-sm text-gray-500 mt-0.5">Datos en tiempo real de BonVoyage</p>
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Panel de administración</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Datos en tiempo real de BonVoyage</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 bg-white rounded-xl px-4 py-2.5 shadow-sm border border-gray-100 text-sm text-gray-600">
@@ -229,11 +219,6 @@ export default function AdminPage() {
                   <AvatarProfilePage />
                 </UserButton.UserProfilePage>
                 <UserButton.MenuItems>
-                  <UserButton.Link
-                    label="Mis viajes"
-                    labelIcon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg>}
-                    href="/my-trips"
-                  />
                   <UserButton.Link
                     label="Dashboard"
                     labelIcon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path fillRule="evenodd" d="M2.25 13.5a8.25 8.25 0 018.25-8.25.75.75 0 01.75.75v6.75H18a.75.75 0 01.75.75 8.25 8.25 0 01-16.5 0z" clipRule="evenodd" /><path fillRule="evenodd" d="M12.75 3a.75.75 0 01.75-.75 8.25 8.25 0 018.25 8.25.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V3z" clipRule="evenodd" /></svg>}

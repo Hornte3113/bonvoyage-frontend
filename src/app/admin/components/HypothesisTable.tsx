@@ -271,8 +271,72 @@ function Histogram({ rows }: { rows: AdminHypothesis[] }) {
   );
 }
 
+/* ─── Comparative Bars ──────────────────────────────────────────────── */
+function ComparativeBars({ rows, promedioHoras }: { rows: AdminHypothesis[]; promedioHoras: number }) {
+  const EXPEDIA_MIN = 300;
+  const bonvoyagePromMin = parseFloat((Number(promedioHoras) * 60).toFixed(2));
+
+  const sorted = [...rows]
+    .map((r) => Number(r.horas_planificacion) * 60)
+    .filter((v) => v > 0)
+    .sort((a, b) => a - b);
+  const mediana = sorted.length > 0
+    ? sorted.length % 2 === 0
+      ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+      : sorted[Math.floor(sorted.length / 2)]
+    : 0;
+
+  const bars = [
+    { label: "Expedia 2024",          value: EXPEDIA_MIN,      color: "#94a3b8", ref: true },
+    { label: "BonVoyage — promedio",  value: bonvoyagePromMin, color: "#3b82f6", ref: false },
+    { label: "BonVoyage — mediana",   value: parseFloat(mediana.toFixed(2)), color: "#22c55e", ref: false },
+  ];
+
+  // Log scale: log10
+  const logVal = (v: number) => Math.log10(Math.max(v, 0.01));
+  const logMin = 0;
+  const logMax = logVal(EXPEDIA_MIN);
+  const pct = (v: number) => Math.max(2, ((logVal(v) - logMin) / (logMax - logMin)) * 100);
+
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      <div className="mb-5">
+        <h3 className="font-semibold text-gray-800">Comparativa de tiempo de planificación</h3>
+        <p className="text-xs text-gray-400 mt-0.5">Escala logarítmica · minutos por viaje vs. referencia Expedia 2024</p>
+      </div>
+      <div className="flex flex-col gap-5">
+        {bars.map((b) => (
+          <div key={b.label} className="space-y-1.5">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-600 font-medium">{b.label}</span>
+              <span className="tabular-nums font-bold text-gray-800">
+                {b.value >= 1 ? `${b.value.toFixed(1)} min` : `${(b.value * 60).toFixed(0)} seg`}
+              </span>
+            </div>
+            <div className="h-7 bg-gray-100 rounded-xl overflow-hidden relative">
+              <div
+                className="h-full rounded-xl transition-all duration-700 flex items-center justify-end pr-3"
+                style={{ width: `${pct(b.value)}%`, background: b.color }}
+              >
+                {pct(b.value) > 20 && (
+                  <span className="text-white text-xs font-semibold tabular-nums">
+                    {b.value >= 1 ? `${b.value.toFixed(1)}m` : `${(b.value * 60).toFixed(0)}s`}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-xs text-gray-400 mt-4 pt-3 border-t border-gray-100">
+        * Escala logarítmica para visualizar diferencias de órdenes de magnitud entre métodos
+      </p>
+    </div>
+  );
+}
+
 /* ─── Main component ────────────────────────────────────────────────── */
-export default function HypothesisTable() {
+export default function HypothesisTable({ promedioHoras = 0 }: { promedioHoras?: number }) {
   const { getToken } = useAuth();
   const [rows, setRows]           = useState<AdminHypothesis[]>([]);
   const [filtered, setFiltered]   = useState<AdminHypothesis[]>([]);
@@ -344,10 +408,13 @@ export default function HypothesisTable() {
 
       {/* Charts */}
       {!loading && rows.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ScatterPlot rows={rows} />
-          <Histogram rows={rows} />
-        </div>
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <ScatterPlot rows={rows} />
+            <Histogram rows={rows} />
+          </div>
+          <ComparativeBars rows={rows} promedioHoras={promedioHoras} />
+        </>
       )}
 
       {/* Table */}

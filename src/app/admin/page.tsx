@@ -278,7 +278,7 @@ export default function AdminPage() {
         {tab === "usuarios"     && <UsersTable />}
         {tab === "viajes"       && <TripsTable />}
         {tab === "presupuestos" && <TicketsTable />}
-        {tab === "hipotesis"    && <HypothesisTable />}
+        {tab === "hipotesis"    && <HypothesisTable promedioHoras={stats?.promedio_horas_planificacion ?? 0} />}
       </div>
     </div>
   );
@@ -366,7 +366,7 @@ function ResumenTab({
       {/* ── Charts ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        {/* Donut — estados de viajes */}
+        {/* Pastel — estados de viajes */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-5">
             <div>
@@ -377,20 +377,7 @@ function ResumenTab({
               {stats.total_trips} total
             </span>
           </div>
-          <div className="flex items-center gap-6">
-            <DonutChart data={donutData} size={156} total={stats.total_trips} />
-            <div className="flex flex-col gap-3 flex-1">
-              {donutData.map((d) => (
-                <div key={d.label} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
-                    <span className="text-sm text-gray-600">{d.label}</span>
-                  </div>
-                  <span className="text-sm font-bold text-gray-800 tabular-nums">{d.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <PieChart data={donutData} total={stats.total_trips} />
         </div>
 
         {/* Bars — presupuesto */}
@@ -535,34 +522,71 @@ function StatCard({
   );
 }
 
-/* ─── DonutChart ────────────────────────────────────────────────────── */
-function DonutChart({ data, size, total }: { data: Slice[]; size: number; total: number }) {
-  const cx = size / 2, cy = size / 2;
-  const R = size * 0.42, r = size * 0.26;
-  const slices = donutSlices(data, cx, cy, R, r);
+/* ─── PieChart ──────────────────────────────────────────────────────── */
+function PieChart({ data, total }: { data: Slice[]; total: number }) {
+  const SIZE = 220;
+  const cx = SIZE / 2, cy = SIZE / 2, R = SIZE * 0.42;
+  const toRad = (d: number) => ((d - 90) * Math.PI) / 180;
+  const fix = (n: number) => parseFloat(n.toFixed(2));
+
+  let angle = 0;
+  const slices = data.map((d) => {
+    const pct = total > 0 ? d.value / total : 0;
+    const start = angle + 0.3;
+    const end = angle + pct * 360 - 0.3;
+    angle += pct * 360;
+    const mid = toRad(start + (end - start) / 2);
+    const lg = end - start > 180 ? 1 : 0;
+    const s = toRad(start), e = toRad(end);
+    // label position — outside the slice
+    const labelR = R * 0.68;
+    return {
+      path: pct > 0.01
+        ? `M${fix(cx + R * Math.cos(s))},${fix(cy + R * Math.sin(s))} A${R},${R} 0 ${lg},1 ${fix(cx + R * Math.cos(e))},${fix(cy + R * Math.sin(e))} L${cx},${cy}Z`
+        : "",
+      lx: fix(cx + labelR * Math.cos(mid)),
+      ly: fix(cy + labelR * Math.sin(mid)),
+      pct: Math.round(pct * 100),
+      color: d.color,
+      label: d.label,
+      value: d.value,
+    };
+  });
 
   return (
-    <svg width={size} height={size} className="flex-shrink-0">
-      {slices.map((s, i) => (
-        <path key={i} d={s.d} fill={data[i].color} />
-      ))}
-      <text
-        x={cx} y={cy - 4} textAnchor="middle"
-        fill="#1f2937"
-        style={{ fontSize: size * 0.145, fontWeight: 800 }}
-      >
-        {total}
-      </text>
-      <text
-        x={cx} y={cy + size * 0.1} textAnchor="middle"
-        fill="#9ca3af"
-        style={{ fontSize: size * 0.08 }}
-      >
-        viajes
-      </text>
-    </svg>
+    <div className="flex items-center gap-4">
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width={SIZE} height={SIZE} className="flex-shrink-0">
+        {slices.map((s, i) =>
+          s.path ? (
+            <g key={i}>
+              <path d={s.path} fill={s.color} opacity={0.88} />
+              {s.pct >= 5 && (
+                <text x={s.lx} y={s.ly} textAnchor="middle" dominantBaseline="middle" fill="#fff" fontSize={11} fontWeight={700}>
+                  {s.pct}%
+                </text>
+              )}
+            </g>
+          ) : null
+        )}
+      </svg>
+      <div className="flex flex-col gap-3 flex-1">
+        {slices.map((s) => (
+          <div key={s.label} className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: s.color }} />
+              <span className="text-sm text-gray-600">{s.label}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400 tabular-nums">{s.pct}%</span>
+              <span className="text-sm font-bold text-gray-800 tabular-nums">{s.value}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
+
 
 /* ─── TripCard (SliderCard style) ───────────────────────────────────── */
 function TripCard({ trip }: { trip: AdminTrip }) {

@@ -35,6 +35,7 @@ const stats = [
 export default function HowItWorksSection() {
   return (
     <ParallaxSection
+      id="como-funciona"
       variant="light"
       className="bg-white px-6 py-24 md:px-16 lg:px-24"
     >

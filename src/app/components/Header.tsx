@@ -53,6 +53,8 @@ function Header({ variant = "dark", onSearch }: Props) {
     };
 
     const isLight = variant === "light";
+    const isLanding = pathname === "/";
+    const menus = isLanding ? landingMenus : appMenus;
 
     const containerClass = isLight
         ? "w-full flex flex-wrap items-center justify-between gap-2 px-5 py-3 text-xs font-medium uppercase bg-white border-b border-gray-100 md:px-10"
@@ -81,20 +83,22 @@ function Header({ variant = "dark", onSearch }: Props) {
                     </motion.li>
                 ))}
 
-                <li>
-                    <form onSubmit={handleSearch} className={`flex items-center gap-1 border-b ${isLight ? "border-gray-300" : "border-white/40"} pb-0.5`}>
-                        <input
-                            type="text"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="¿A dónde vas a viajar?"
-                            className={`bg-transparent outline-none text-[11px] uppercase tracking-wider placeholder:normal-case placeholder:tracking-normal w-32 md:w-44 ${isLight ? "placeholder:text-gray-400 text-gray-700" : "placeholder:text-white/50 text-white"}`}
-                        />
-                        <button type="submit" disabled={loading} className={`${isLight ? "text-gray-500 hover:text-gray-800" : "text-white/70 hover:text-white"} transition-colors`}>
-                            <IoSearchOutline className="text-base" />
-                        </button>
-                    </form>
-                </li>
+                {isLight && (
+                    <li>
+                        <form onSubmit={handleSearch} className="flex items-center gap-1 border-b border-gray-300 pb-0.5">
+                            <input
+                                type="text"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder="¿A dónde vas a viajar?"
+                                className="bg-transparent outline-none text-[11px] uppercase tracking-wider placeholder:normal-case placeholder:tracking-normal w-32 md:w-44 placeholder:text-gray-400 text-gray-700"
+                            />
+                            <button type="submit" disabled={loading} className="text-gray-500 hover:text-gray-800 transition-colors">
+                                <IoSearchOutline className="text-base" />
+                            </button>
+                        </form>
+                    </li>
+                )}
 
                 <div className="flex items-center gap-4">
                     <SignedOut>
@@ -187,8 +191,15 @@ function Header({ variant = "dark", onSearch }: Props) {
 
 export default Header;
 
-const menus = [
-    { label: "Home",         href: "/"             },
-    { label: "Destinos",     href: "/destinations" },
-    { label: "DiscoveryMap", href: "/dashboard"    },
+// Menús de la landing page (links a secciones con anchor)
+const landingMenus = [
+    { label: "Cómo funciona", href: "/#como-funciona"   },
+    { label: "Características", href: "/#caracteristicas" },
+    { label: "Sobre nosotros",  href: "/#nosotros"        },
+];
+
+// Menús del panel de la app
+const appMenus = [
+    { label: "Inicio",        href: "/"          },
+    { label: "DiscoveryMap",  href: "/dashboard" },
 ];

@@ -31,7 +31,7 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="bg-white px-6 py-20 md:px-16 lg:px-24">
+    <section id="caracteristicas" className="bg-white px-6 py-20 md:px-16 lg:px-24">
       <div className="mx-auto max-w-6xl flex flex-col gap-14">
 
         {/* Top row: título + botón */}

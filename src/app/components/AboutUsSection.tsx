@@ -32,6 +32,7 @@ const stats = [
 export default function AboutUsSection() {
   return (
     <ParallaxSection
+      id="nosotros"
       variant="dark"
       className="bg-slate-900 px-6 py-28 md:px-16 lg:px-24"
     >

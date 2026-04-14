@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import {
@@ -44,6 +44,8 @@ export default function CreateTripWizard({ place, onClose }: Props) {
 
   const [description, setDescription] = useState<string | null>(null);
   const [showDesc, setShowDesc] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const descRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     const name = place.name.split(",")[0].trim();
@@ -54,6 +56,12 @@ export default function CreateTripWizard({ place, onClose }: Props) {
       })
       .catch(() => {});
   }, [place.name]);
+
+  // Detecta si el texto realmente desborda las 2 líneas
+  useEffect(() => {
+    if (!descRef.current) return;
+    setIsTruncated(descRef.current.scrollHeight > descRef.current.clientHeight);
+  }, [description]);
 
   // Restore from sessionStorage if available (survives page reload mid-wizard)
   const saved = (() => {
@@ -220,15 +228,20 @@ export default function CreateTripWizard({ place, onClose }: Props) {
                 <h2 className="text-lg font-bold text-gray-800">Crear viaje</h2>
                 {description ? (
                   <div className="mt-2">
-                    <p className={`text-sm text-gray-500 leading-relaxed ${showDesc ? "" : "line-clamp-2"}`}>
+                    <p
+                      ref={descRef}
+                      className={`text-sm text-gray-500 leading-relaxed ${showDesc ? "" : "line-clamp-2"}`}
+                    >
                       {description}
                     </p>
-                    <button
-                      onClick={() => setShowDesc((v) => !v)}
-                      className="text-xs text-blue-500 hover:text-blue-600 font-semibold mt-1"
-                    >
-                      {showDesc ? "Ver menos" : "Ver más"}
-                    </button>
+                    {isTruncated && (
+                      <button
+                        onClick={() => setShowDesc((v) => !v)}
+                        className="text-xs text-blue-500 hover:text-blue-600 font-semibold mt-1"
+                      >
+                        {showDesc ? "Ver menos" : "Ver más"}
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="mt-2 space-y-1.5">

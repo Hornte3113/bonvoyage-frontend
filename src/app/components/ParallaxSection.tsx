@@ -7,12 +7,14 @@ interface ParallaxSectionProps {
   children: React.ReactNode;
   className?: string;
   variant?: "light" | "dark";
+  id?: string;
 }
 
 export default function ParallaxSection({
   children,
   className = "",
   variant = "light",
+  id,
 }: ParallaxSectionProps) {
   const ref = useRef<HTMLElement>(null);
 
@@ -28,7 +30,7 @@ export default function ParallaxSection({
   const light = variant === "light";
 
   return (
-    <section ref={ref} className={`relative overflow-hidden ${className}`}>
+    <section ref={ref} id={id} className={`relative overflow-hidden ${className}`}>
       {/* Shape 1 — top-right, drifts down */}
       <motion.div
         style={{ y: y1 }}

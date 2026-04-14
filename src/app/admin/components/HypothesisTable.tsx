@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
+import { createApiClient } from "@/lib/api";
 
 type AdminHypothesis = {
   trip_id: string;
@@ -351,13 +351,10 @@ export default function HypothesisTable({ promedioHoras = 0 }: { promedioHoras?:
 
   async function fetchHypothesis() {
     setLoading(true);
+    const api = createApiClient(getToken);
     try {
-      const token = await getToken();
-      const res = await fetch(`${BACKEND}/api/v1/admin/hypothesis`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error();
-      const data = await res.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = await api.get<any>("/api/v1/admin/hypothesis");
       setRows(data?.data ?? data ?? []);
     } catch {
       setRows([]);

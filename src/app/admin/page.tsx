@@ -15,7 +15,7 @@ import TripsTable from "./components/TripsTable";
 import TicketsTable from "./components/TicketsTable";
 import HypothesisTable from "./components/HypothesisTable";
 
-const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
+import { createApiClient, ApiError } from "@/lib/api";
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 type AdminStats = {
@@ -144,31 +144,34 @@ export default function AdminPage() {
   async function loadResumen() {
     setLoading(true);
     setError(null);
+    const api = createApiClient(getToken);
     try {
-      const token = await getToken();
-      const h = { Authorization: `Bearer ${token}` };
-      const [sRes, tRes, hRes] = await Promise.all([
-        fetch(`${BACKEND}/api/v1/admin/stats`, { headers: h }),
-        fetch(`${BACKEND}/api/v1/admin/trips?page=1&limit=4`, { headers: h }),
-        fetch(`${BACKEND}/api/v1/admin/hypothesis`, { headers: h }),
-      ]);
-      if (!sRes.ok) {
-        if (sRes.status === 403) {
+      // Stats — redirect on 403, throw on other errors
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let sd: any;
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        sd = await api.get<any>("/api/v1/admin/stats");
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 403) {
           router.replace("/dashboard");
           return;
         }
-        throw new Error(`Error ${sRes.status}`);
+        throw e;
       }
-      const sd = await sRes.json();
       setStats(sd?.data ?? sd);
-      if (tRes.ok) {
-        const td = await tRes.json();
-        setRecentTrips((td?.data?.trips ?? td?.trips ?? td?.data ?? []).slice(0, 4));
-      }
-      if (hRes.ok) {
-        const hd = await hRes.json();
-        setHypoPreview((hd?.data ?? hd ?? []).slice(0, 5));
-      }
+
+      // Trips and hypothesis are optional — continue on error
+      await Promise.allSettled([
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        api.get<any>("/api/v1/admin/trips?page=1&limit=4").then((td: any) => {
+          setRecentTrips((td?.data?.trips ?? td?.trips ?? td?.data ?? []).slice(0, 4));
+        }),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        api.get<any>("/api/v1/admin/hypothesis").then((hd: any) => {
+          setHypoPreview((hd?.data ?? hd ?? []).slice(0, 5));
+        }),
+      ]);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Error al cargar datos");
     } finally {

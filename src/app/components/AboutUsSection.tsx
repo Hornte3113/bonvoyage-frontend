@@ -1,21 +1,25 @@
-import ParallaxSection from "./ParallaxSection";
+"use client";
+import { motion } from "motion/react";
 import { IoEarthOutline, IoRocketOutline, IoHeartOutline } from "react-icons/io5";
 
 const values = [
   {
-    icon: <IoEarthOutline className="text-2xl" />,
+    number: "01",
+    icon: <IoEarthOutline className="text-lg" />,
     title: "Misión",
     description:
       "Simplificar la planificación de viajes para que cada persona pueda explorar el mundo sin estrés, con todo en un solo lugar.",
   },
   {
-    icon: <IoRocketOutline className="text-2xl" />,
+    number: "02",
+    icon: <IoRocketOutline className="text-lg" />,
     title: "Visión",
     description:
       "Ser la plataforma de referencia para viajeros de habla hispana, conectando sueños con itinerarios reales y accesibles.",
   },
   {
-    icon: <IoHeartOutline className="text-2xl" />,
+    number: "03",
+    icon: <IoHeartOutline className="text-lg" />,
     title: "Valores",
     description:
       "Pasión por los viajes, innovación tecnológica y compromiso con una experiencia humana, intuitiva y memorable.",
@@ -31,62 +35,116 @@ const stats = [
 
 export default function AboutUsSection() {
   return (
-    <ParallaxSection
+    <section
       id="nosotros"
-      variant="dark"
-      className="bg-slate-900 px-6 py-28 md:px-16 lg:px-24"
+      className="relative overflow-hidden bg-slate-900 px-6 py-28 md:px-16 lg:px-24"
     >
-      <div className="mx-auto max-w-6xl flex flex-col gap-20">
+      {/* Decorative gradient blob */}
+      <div className="pointer-events-none absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -left-40 h-[400px] w-[400px] rounded-full bg-cyan-400/5 blur-3xl" />
 
-        {/* Header */}
-        <div className="flex flex-col gap-5 max-w-2xl">
-          <div className="flex items-center gap-3">
-            <span className="h-[2px] w-6 bg-cyan-400" />
-            <span className="text-xs font-semibold uppercase tracking-widest text-cyan-400">
-              Sobre nosotros
-            </span>
-          </div>
-          <h2 className="text-4xl font-medium leading-tight text-white md:text-5xl">
-            Viajeros que crearon la herramienta que{" "}
-            <span className="italic text-cyan-400">siempre quisieron</span>
-          </h2>
-          <p className="text-base leading-relaxed text-slate-300 max-w-xl">
-            Bon Voyage nació de la frustración de planificar viajes con decenas de pestañas
-            abiertas. Somos un equipo apasionado por el turismo y la tecnología, comprometidos
-            a hacer que cada viaje sea inolvidable desde su primera planificación.
-          </p>
+      <div className="relative mx-auto max-w-6xl flex flex-col gap-24">
+
+        {/* ── Top split: headline left | text right ── */}
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-16 md:items-end">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <motion.span
+                className="h-[2px] bg-cyan-400"
+                initial={{ width: 0 }}
+                whileInView={{ width: 24 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              />
+              <span className="text-xs font-semibold uppercase tracking-widest text-cyan-400">
+                Sobre nosotros
+              </span>
+            </div>
+            <h2 className="text-4xl font-black uppercase leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl">
+              NACIDOS
+              <br />
+              PARA{" "}
+              <span className="italic font-black text-cyan-400">EXPLORAR</span>
+            </h2>
+          </motion.div>
+
+          <motion.div
+            className="flex flex-col gap-5"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
+          >
+            <p className="text-base leading-relaxed text-slate-300">
+              Bon Voyage nació de la frustración de planificar viajes con decenas de pestañas
+              abiertas. Somos un equipo apasionado por el turismo y la tecnología, comprometidos
+              a hacer que cada viaje sea inolvidable desde su primera planificación.
+            </p>
+            {/* Inline stats */}
+            <div className="grid grid-cols-2 gap-y-6 gap-x-4 pt-2">
+              {stats.map(({ value, label }, i) => (
+                <motion.div
+                  key={label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.3 + i * 0.08, ease: "easeOut" }}
+                >
+                  <span className="block text-3xl font-bold text-cyan-400">{value}</span>
+                  <span className="text-xs text-slate-500">{label}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </div>
 
-        {/* Values grid */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {values.map((v) => (
-            <div
+        {/* ── Divider ── */}
+        <motion.div
+          className="h-[1px] w-full bg-white/10"
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          style={{ originX: 0 }}
+        />
+
+        {/* ── Values: numbered horizontal list ── */}
+        <div className="flex flex-col gap-0">
+          {values.map((v, i) => (
+            <motion.div
               key={v.title}
-              className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 px-6 py-7"
+              className="group grid grid-cols-1 md:grid-cols-[80px_180px_1fr] items-start gap-4 md:gap-8 border-b border-white/10 py-7 last:border-b-0"
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, delay: i * 0.12, ease: "easeOut" }}
+              whileHover={{ x: 6 }}
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400">
-                {v.icon}
-              </div>
-              <h3 className="text-lg font-semibold text-white">{v.title}</h3>
-              <p className="text-sm leading-relaxed text-slate-400">{v.description}</p>
-            </div>
-          ))}
-        </div>
+              {/* Number */}
+              <span className="text-5xl font-black text-white/10 leading-none group-hover:text-cyan-400/30 transition-colors duration-300">
+                {v.number}
+              </span>
 
-        {/* Stats strip */}
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {stats.map(({ value, label }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-6 text-center"
-            >
-              <span className="text-3xl font-bold text-cyan-400 md:text-4xl">{value}</span>
-              <span className="mt-1 text-xs text-slate-400">{label}</span>
-            </div>
+              {/* Title + icon */}
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400">
+                  {v.icon}
+                </div>
+                <h3 className="text-base font-semibold text-white">{v.title}</h3>
+              </div>
+
+              {/* Description */}
+              <p className="text-sm leading-relaxed text-slate-400">{v.description}</p>
+            </motion.div>
           ))}
         </div>
 
       </div>
-    </ParallaxSection>
+    </section>
   );
 }

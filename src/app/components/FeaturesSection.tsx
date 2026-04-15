@@ -1,6 +1,7 @@
 "use client";
-import Link from "next/link";
 import { motion } from "motion/react";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { MdFlight, MdRestaurant, MdLocalHospital } from "react-icons/md";
 import { IoMapOutline } from "react-icons/io5";
 
@@ -32,6 +33,13 @@ const features = [
 ];
 
 export default function FeaturesSection() {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+
+  const handleExplorar = () => {
+    router.push(isSignedIn ? "/dashboard" : "/sign-in");
+  };
+
   return (
     <section id="caracteristicas" className="bg-white px-6 py-20 md:px-16 lg:px-24">
       <div className="mx-auto max-w-6xl flex flex-col gap-14">
@@ -57,8 +65,8 @@ export default function FeaturesSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
           >
-            <Link href="/dashboard">
-              <motion.button
+            <motion.button
+                onClick={handleExplorar}
                 className="rounded-full bg-slate-900 px-8 py-3 text-xs font-semibold uppercase tracking-widest text-white"
                 whileHover={{ scale: 1.03, opacity: 0.88 }}
                 whileTap={{ scale: 0.97 }}
@@ -66,7 +74,6 @@ export default function FeaturesSection() {
               >
                 EXPLORAR AHORA
               </motion.button>
-            </Link>
           </motion.div>
         </div>
 

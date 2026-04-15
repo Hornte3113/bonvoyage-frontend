@@ -1,8 +1,21 @@
-import Link from "next/link";
+"use client";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import ParallaxSection from "./ParallaxSection";
 import { IoAirplaneOutline } from "react-icons/io5";
 
 export default function CTASection() {
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (isSignedIn) {
+      router.push("/dashboard");
+    } else {
+      router.push("/sign-in");
+    }
+  };
+
   return (
     <ParallaxSection
       variant="dark"
@@ -24,11 +37,12 @@ export default function CTASection() {
           Todo lo que necesitas en un solo lugar.
         </p>
 
-        <Link href="/dashboard">
-          <button className="rounded-full px-10 py-4 bg-cyan-500 text-white font-medium text-sm transition duration-300 ease-in-out hover:opacity-80">
-            Crear mi primer viaje
-          </button>
-        </Link>
+        <button
+          onClick={handleClick}
+          className="rounded-full px-10 py-4 bg-cyan-500 text-white font-medium text-sm transition duration-300 ease-in-out hover:opacity-80"
+        >
+          Crear mi primer viaje
+        </button>
 
         <p className="text-xs text-slate-600 uppercase tracking-widest">
           Bon Voyage · Planifica. Confirma. Viaja.

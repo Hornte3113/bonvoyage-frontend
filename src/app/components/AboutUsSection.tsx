@@ -78,10 +78,10 @@ export default function AboutUsSection() {
           {/* Left — destination card */}
           <motion.div
             className="relative overflow-hidden rounded-3xl min-h-[420px]"
-            initial={{ opacity: 0, x: -40 }}
+            initial={{ opacity: 0, x: -16 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           >
             <img
               src="/images/slide1.jpg"
@@ -119,10 +119,10 @@ export default function AboutUsSection() {
           {/* Right — text + stats */}
           <motion.div
             className="flex flex-col justify-between gap-10"
-            initial={{ opacity: 0, x: 40 }}
+            initial={{ opacity: 0, x: 16 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }}
+            transition={{ duration: 1.2, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="flex flex-col gap-5">
               <p className="text-base leading-relaxed text-slate-600 max-w-md">

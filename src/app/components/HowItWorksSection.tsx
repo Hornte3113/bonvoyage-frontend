@@ -39,7 +39,7 @@ export default function HowItWorksSection() {
     <ParallaxSection
       id="como-funciona"
       variant="light"
-      className="bg-gradient-to-br from-sky-50 via-cyan-50/60 to-slate-50 px-6 py-24 md:px-16 lg:px-24"
+      className="bg-white px-6 py-24 md:px-16 lg:px-24"
     >
       <div className="mx-auto max-w-6xl flex flex-col gap-20">
 
@@ -74,7 +74,7 @@ export default function HowItWorksSection() {
           {steps.map((step, i) => (
             <motion.div
               key={i}
-              className="relative flex flex-col gap-5 rounded-2xl border border-white/70 bg-white/60 px-6 py-7 shadow-lg backdrop-blur-md"
+              className="relative flex flex-col gap-5 rounded-2xl border border-slate-100 bg-white px-6 py-7 shadow-md hover:shadow-lg transition-shadow duration-300"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
@@ -82,13 +82,13 @@ export default function HowItWorksSection() {
               whileHover={{ y: -6, boxShadow: "0 20px 48px rgba(6,182,212,0.12)" }}
             >
               {/* Ghost number — top right */}
-              <span className="absolute top-4 right-5 text-6xl font-black leading-none text-cyan-400/20 select-none">
+              <span className="absolute top-4 right-5 text-6xl font-black leading-none text-slate-300 select-none">
                 {step.number}
               </span>
 
               {/* Icon */}
               <motion.div
-                className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500 text-white flex-shrink-0"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-600 flex-shrink-0"
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
               >
@@ -109,12 +109,12 @@ export default function HowItWorksSection() {
           {stats.map(({ value, label }, i) => (
             <motion.div
               key={label}
-              className="flex flex-col items-center justify-center rounded-2xl border border-white/70 bg-white/60 px-4 py-6 text-center shadow-md backdrop-blur-md"
+              className="flex flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white px-4 py-6 text-center shadow-sm"
               initial={{ opacity: 0, scale: 0.85 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.4, delay: i * 0.08, ease: "easeOut" }}
-              whileHover={{ y: -4, boxShadow: "0 12px 32px rgba(6,182,212,0.15)" }}
+              whileHover={{ y: -4, boxShadow: "0 8px 24px rgba(15,23,42,0.08)" }}
             >
               <span className="text-3xl font-bold text-slate-900 md:text-4xl">{value}</span>
               <span className="mt-1 text-xs text-slate-500">{label}</span>

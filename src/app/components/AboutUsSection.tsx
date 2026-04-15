@@ -40,37 +40,32 @@ export default function AboutUsSection() {
     <section id="nosotros" className="bg-slate-50 px-6 py-24 md:px-16 lg:px-24">
       <div className="mx-auto max-w-6xl flex flex-col gap-20">
 
-        {/* ── Label ── */}
+        {/* ── Label + Editorial statement agrupados ── */}
         <motion.div
-          className="flex items-center gap-3"
-          initial={{ opacity: 0, y: 20 }}
+          className="flex flex-col gap-4"
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          <motion.span
-            className="h-[2px] bg-cyan-500"
-            initial={{ width: 0 }}
-            whileInView={{ width: 24 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          />
-          <span className="text-xs font-semibold uppercase tracking-widest text-cyan-600">
-            Sobre nosotros
-          </span>
-        </motion.div>
+          <div className="flex items-center gap-3">
+            <motion.span
+              className="h-[2px] bg-cyan-500"
+              initial={{ width: 0 }}
+              whileInView={{ width: 24 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            />
+            <span className="text-xs font-semibold uppercase tracking-widest text-cyan-600">
+              Sobre nosotros
+            </span>
+          </div>
 
-        {/* ── Editorial statement — full width ── */}
-        <motion.h2
-          className="text-4xl font-medium leading-[1.15] text-slate-800 md:text-5xl lg:text-6xl max-w-4xl"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-        >
-          Nacimos de la frustración de{" "}
-          <span className="italic text-cyan-600">planificar con 30 pestañas abiertas.</span>
-        </motion.h2>
+          <h2 className="text-4xl font-medium leading-[1.15] text-slate-800 md:text-5xl lg:text-6xl max-w-4xl">
+            Nacimos de la frustración de{" "}
+            <span className="italic text-cyan-600">planificar con 30 pestañas abiertas.</span>
+          </h2>
+        </motion.div>
 
         {/* ── Two-column: photo card | text + stats ── */}
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:items-stretch">

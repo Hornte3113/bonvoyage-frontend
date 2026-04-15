@@ -1,18 +1,19 @@
 "use client";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import ParallaxSection from "./ParallaxSection";
 import { IoAirplaneOutline } from "react-icons/io5";
 
 export default function CTASection() {
   const { isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
   const router = useRouter();
 
   const handleClick = () => {
     if (isSignedIn) {
       router.push("/dashboard");
     } else {
-      router.push("/sign-in");
+      openSignIn({ afterSignInUrl: "/dashboard" });
     }
   };
 

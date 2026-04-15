@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "motion/react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { MdFlight, MdRestaurant, MdLocalHospital } from "react-icons/md";
 import { IoMapOutline } from "react-icons/io5";
@@ -34,10 +34,15 @@ const features = [
 
 export default function FeaturesSection() {
   const { isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
   const router = useRouter();
 
   const handleExplorar = () => {
-    router.push(isSignedIn ? "/dashboard" : "/sign-in");
+    if (isSignedIn) {
+      router.push("/dashboard");
+    } else {
+      openSignIn({ afterSignInUrl: "/dashboard" });
+    }
   };
 
   return (

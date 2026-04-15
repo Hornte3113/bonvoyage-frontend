@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { IoIosGlobe } from "react-icons/io";
 import { IoSearchOutline } from "react-icons/io5";
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import AvatarProfilePage from "./AvatarProfilePage";
 
@@ -19,14 +19,16 @@ type SearchResult = {
 type Props = {
   variant?: "dark" | "light";
   onSearch?: (result: SearchResult) => void;
+  useLandingMenus?: boolean;
 };
 
-function Header({ variant = "dark", onSearch }: Props) {
+function Header({ variant = "dark", onSearch, useLandingMenus }: Props) {
     const pathname = usePathname();
     const router = useRouter();
     const [query, setQuery] = React.useState("");
     const [loading, setLoading] = React.useState(false);
     const { profile } = useUserProfile();
+    const { isSignedIn } = useAuth();
 
     const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -53,8 +55,11 @@ function Header({ variant = "dark", onSearch }: Props) {
     };
 
     const isLight = variant === "light";
-    const isLanding = pathname === "/";
-    const menus = isLanding ? landingMenus : appMenus;
+    const isLanding = useLandingMenus || pathname === "/";
+    const baseLandingMenus = isSignedIn
+        ? [...landingMenus, { label: "DiscoveryMap", href: "/dashboard" }]
+        : landingMenus;
+    const menus = isLanding ? baseLandingMenus : appMenus;
 
     const containerClass = isLight
         ? "w-full flex flex-wrap items-center justify-between gap-2 px-5 py-3 text-xs font-medium uppercase bg-white border-b border-gray-100 md:px-10"

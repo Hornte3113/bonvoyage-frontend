@@ -111,7 +111,7 @@ export default function TripsMapView({ trips }: Props) {
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
         initialViewState={{ longitude: 0, latitude: 20, zoom: 1.5 }}
         style={{ width: "100%", height: "100%" }}
-        mapStyle="mapbox://styles/mapbox/light-v11"
+        mapStyle="mapbox://styles/mapbox/streets-v12"
         minZoom={1}
         maxZoom={10}
         onClick={() => setActivePopup(null)}

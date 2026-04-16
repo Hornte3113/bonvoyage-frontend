@@ -389,13 +389,31 @@ function TripPageContent() {
 
       // 2. Add item to the itinerary day (skip if day has no real backend ID)
       if (!day?.dayId || day.dayId.startsWith("placeholder-")) return;
-      await api.post(`/api/v1/trips/${tripId}/days/${day.dayId}/items`, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const created = await api.post<any>(`/api/v1/trips/${tripId}/days/${day.dayId}/items`, {
         item_type: "PLACE",
         place_reference_id: reference_id,
         ...(options?.start_time && { start_time: options.start_time }),
         ...(options?.end_time   && { end_time:   options.end_time }),
         ...(options?.notes      && { notes:       options.notes }),
       });
+      // Reemplazar el tempId optimista con el item_id real del backend
+      const realItemId = (created?.data ?? created)?.item_id;
+      if (realItemId) {
+        setItinerary((prev) => ({
+          ...prev,
+          days: prev.days.map((d) =>
+            d.dayNumber === dayNumber
+              ? {
+                  ...d,
+                  items: d.items.map((i) =>
+                    i.itemId === tempId ? { ...i, itemId: realItemId } : i
+                  ),
+                }
+              : d
+          ),
+        }));
+      }
     } catch {
       // silent — optimistic item stays visible
     }

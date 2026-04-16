@@ -416,62 +416,52 @@ function HotelCard({
   return (
     <div
       onClick={onClick}
-      className={`relative rounded-3xl overflow-hidden cursor-pointer group transition-all duration-200 h-64 ${
+      className={`bg-white rounded-2xl overflow-hidden cursor-pointer group transition-all duration-200 ${
         selected
-          ? "shadow-xl ring-2 ring-blue-400 ring-offset-2 scale-[1.02]"
-          : "shadow-md hover:shadow-lg hover:scale-[1.01]"
+          ? "shadow-lg ring-2 ring-blue-400 ring-offset-1 scale-[1.02]"
+          : "shadow-sm hover:shadow-md hover:scale-[1.01]"
       }`}
     >
-      {/* Full-bleed image */}
-      {hotel.imageUrl ? (
-        <img
-          src={hotel.imageUrl}
-          alt={hotel.name}
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-          <IoBed className="text-5xl text-gray-400" />
-        </div>
-      )}
+      {/* Image */}
+      <div className="relative h-40 overflow-hidden">
+        {hotel.imageUrl ? (
+          <img
+            src={hotel.imageUrl}
+            alt={hotel.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <IoBed className="text-4xl text-gray-300" />
+          </div>
+        )}
 
-      {/* Top gradient */}
-      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/30 to-transparent" />
+        {/* Rating badge — top left */}
+        {hotel.rating && hotel.rating !== "N/A" && (
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 shadow-sm">
+            <IoStar className="text-amber-400 text-[10px]" />
+            <span className="text-[11px] font-bold text-gray-800">{hotel.rating}</span>
+          </div>
+        )}
 
-      {/* Rating badge — top left */}
-      {hotel.rating && hotel.rating !== "N/A" && (
-        <div className="absolute top-3 left-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-sm">
-          <IoStar className="text-amber-400 text-xs" />
-          <span className="text-xs font-bold text-gray-800">{hotel.rating}</span>
-        </div>
-      )}
+        {/* Saved badge — top right */}
+        {saved ? (
+          <div className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-green-500 flex items-center justify-center shadow-md">
+            <IoCheckmark className="text-white text-xs" />
+          </div>
+        ) : null}
+      </div>
 
-      {/* Saved badge — top right */}
-      {saved && (
-        <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-md">
-          <IoCheckmark className="text-white text-sm" />
-        </div>
-      )}
-
-      {/* White info panel — absolute bottom, INSIDE the card */}
-      <div className="absolute bottom-3 left-3 right-3 bg-white rounded-2xl shadow-xl px-3 py-2.5">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-1 flex-1">
-            {hotel.name}
-          </h3>
-          {hotel.price && hotel.price !== "Precio no disponible" && (
-            <span className="text-xs font-bold text-gray-800 flex-shrink-0">
-              {hotel.price}
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-1 mt-1">
-          <IoLocationSharp className="text-green-500 text-xs flex-shrink-0" />
+      {/* Info section */}
+      <div className="p-3 space-y-1.5">
+        <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-1">
+          {hotel.name}
+        </h3>
+        <div className="flex items-center gap-1">
+          <IoLocationSharp className="text-blue-400 text-xs flex-shrink-0" />
           <span className="text-[11px] text-gray-500 line-clamp-1">{destinationName}</span>
         </div>
-
-        <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-gray-50">
+        <div className="flex items-center justify-between pt-0.5">
           {hotel.rating && hotel.rating !== "N/A" ? (
             <div className="flex items-center gap-1">
               <IoStar className="text-amber-400 text-[10px]" />
@@ -479,7 +469,9 @@ function HotelCard({
             </div>
           ) : <span />}
           {hotel.price && hotel.price !== "Precio no disponible" && (
-            <span className="text-[10px] text-gray-400">por noche</span>
+            <span className="text-xs font-bold text-gray-800">
+              {hotel.price} <span className="text-[9px] font-normal text-gray-400">/ noche</span>
+            </span>
           )}
         </div>
       </div>

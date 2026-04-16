@@ -445,119 +445,101 @@ function POICard({
   return (
     <div
       onClick={onClick}
-      className={`relative rounded-3xl overflow-hidden cursor-pointer group transition-all duration-200 h-64 ${
+      className={`bg-white rounded-2xl overflow-hidden cursor-pointer group transition-all duration-200 ${
         selected
-          ? "shadow-xl ring-2 ring-blue-400 ring-offset-2 scale-[1.02]"
-          : "shadow-md hover:shadow-lg hover:scale-[1.01]"
+          ? "shadow-lg ring-2 ring-blue-400 ring-offset-1 scale-[1.02]"
+          : "shadow-sm hover:shadow-md hover:scale-[1.01]"
       }`}
     >
-      {/* Full-bleed image */}
-      {poi.photoUrl ? (
-        <img
-          src={poi.photoUrl}
-          alt={poi.name}
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-          <IoCompass className="text-5xl text-gray-400" />
-        </div>
-      )}
-
-      {/* Subtle top gradient so badges are legible */}
-      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/30 to-transparent" />
-
-      {/* Rating badge — top left */}
-      {poi.rating && (
-        <div className="absolute top-3 left-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-sm">
-          <IoStar className="text-amber-400 text-xs" />
-          <span className="text-xs font-bold text-gray-800">{poi.rating.toFixed(1)}</span>
-          {poi.ratingCount && (
-            <span className="text-[10px] text-gray-500">
-              ({poi.ratingCount > 999
-                ? `${(poi.ratingCount / 1000).toFixed(1)}k`
-                : poi.ratingCount})
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Add button — top right */}
-      {!readOnly && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onPickerToggle();
-          }}
-          title="Agregar al itinerario"
-          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all duration-150 ${
-            added
-              ? "bg-green-500 text-white"
-              : "bg-white/90 backdrop-blur-sm text-blue-500 hover:bg-white hover:scale-110"
-          }`}
-        >
-          {added ? <IoCheckmark className="text-sm" /> : <IoAdd className="text-base" />}
-        </button>
-      )}
-
-      {/* Day picker popover */}
-      {pickerOpen && (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="absolute top-12 right-3 z-20 bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 w-44"
-        >
-          <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest mb-2">
-            Agregar al día
-          </p>
-          <div className="grid grid-cols-4 gap-1.5">
-            {days.map((d) => (
-              <button
-                key={d.dayId}
-                onClick={() => onAddToDay(d.dayNumber)}
-                className="text-xs font-semibold text-gray-700 hover:bg-blue-500 hover:text-white rounded-xl py-1.5 transition-all bg-gray-50 border border-gray-100"
-              >
-                {d.dayNumber}
-              </button>
-            ))}
+      {/* ── Image ── */}
+      <div className="relative h-40 overflow-hidden">
+        {poi.photoUrl ? (
+          <img
+            src={poi.photoUrl}
+            alt={poi.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <IoCompass className="text-4xl text-gray-300" />
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ── White info panel — absolute bottom, inside the card ── */}
-      <div className="absolute bottom-3 left-3 right-3 bg-white rounded-2xl shadow-xl px-3 py-2.5">
-        {/* Name + arrow */}
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-1 flex-1">
-            {poi.name}
-          </h3>
-          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
-            <IoArrowForward className="text-[10px] text-gray-500 group-hover:text-blue-500 transition-colors" />
+        {/* Rating badge — top left */}
+        {poi.rating && (
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 shadow-sm">
+            <IoStar className="text-amber-400 text-[10px]" />
+            <span className="text-[11px] font-bold text-gray-800">{poi.rating.toFixed(1)}</span>
+            {poi.ratingCount && (
+              <span className="text-[9px] text-gray-500">
+                ({poi.ratingCount > 999 ? `${(poi.ratingCount / 1000).toFixed(1)}k` : poi.ratingCount})
+              </span>
+            )}
           </div>
-        </div>
+        )}
 
-        {/* Location */}
-        <div className="flex items-center gap-1 mt-1">
-          <IoLocationSharp className="text-green-500 text-xs flex-shrink-0" />
+        {/* Add button — top right */}
+        {!readOnly && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onPickerToggle(); }}
+            title="Agregar al itinerario"
+            className={`absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-all duration-150 ${
+              added
+                ? "bg-green-500 text-white"
+                : "bg-white/90 backdrop-blur-sm text-blue-500 hover:bg-white hover:scale-110"
+            }`}
+          >
+            {added ? <IoCheckmark className="text-xs" /> : <IoAdd className="text-sm" />}
+          </button>
+        )}
+
+        {/* Day picker popover */}
+        {pickerOpen && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute top-10 right-2.5 z-20 bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 w-40"
+          >
+            <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest mb-2">
+              Agregar al día
+            </p>
+            <div className="grid grid-cols-4 gap-1">
+              {days.map((d) => (
+                <button
+                  key={d.dayId}
+                  onClick={() => onAddToDay(d.dayNumber)}
+                  className="text-xs font-semibold text-gray-700 hover:bg-blue-500 hover:text-white rounded-xl py-1.5 transition-all bg-gray-50 border border-gray-100"
+                >
+                  {d.dayNumber}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Info section (separada de la imagen) ── */}
+      <div className="p-3 space-y-1.5">
+        <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-1">
+          {poi.name}
+        </h3>
+
+        <div className="flex items-center gap-1">
+          <IoLocationSharp className="text-blue-400 text-xs flex-shrink-0" />
           <span className="text-[11px] text-gray-500 line-clamp-1">{poi.address}</span>
         </div>
 
-        {/* Bottom meta row */}
-        <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-gray-50">
+        <div className="flex items-center justify-between pt-0.5">
           {poi.rating ? (
             <div className="flex items-center gap-1">
               <IoStar className="text-amber-400 text-[10px]" />
               <span className="text-[11px] font-semibold text-gray-700">{poi.rating.toFixed(1)}</span>
               {poi.ratingCount && (
                 <span className="text-[10px] text-gray-400">
-                  ({poi.ratingCount > 999
-                    ? `${(poi.ratingCount / 1000).toFixed(1)}k`
-                    : poi.ratingCount} reseñas)
+                  ({poi.ratingCount > 999 ? `${(poi.ratingCount / 1000).toFixed(1)}k` : poi.ratingCount})
                 </span>
               )}
             </div>
-          ) : (
-            <span />
-          )}
+          ) : <span />}
           {poi.isOpenNow != null ? (
             <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
               poi.isOpenNow ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-500"
@@ -565,7 +547,7 @@ function POICard({
               {poi.isOpenNow ? "Abierto" : "Cerrado"}
             </span>
           ) : poi.priceLevel ? (
-            <span className="text-[10px] font-bold text-gray-700">{poi.priceLevel}</span>
+            <span className="text-[10px] font-semibold text-gray-600">{poi.priceLevel}</span>
           ) : null}
         </div>
       </div>

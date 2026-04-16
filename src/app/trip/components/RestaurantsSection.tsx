@@ -6,6 +6,7 @@ import { useAuth } from "@clerk/nextjs";
 import {
   IoStar, IoLocationSharp, IoRestaurant, IoPricetag,
   IoSearch, IoAdd, IoCheckmark, IoCalendarOutline, IoTimeOutline,
+  IoArrowForward,
 } from "react-icons/io5";
 import type { ItineraryItem, TripDay } from "../types";
 
@@ -440,86 +441,65 @@ function RestaurantCard({
   return (
     <div
       onClick={onClick}
-      className={`relative w-full text-left bg-white rounded-2xl overflow-hidden shadow-sm border transition-all duration-200 cursor-pointer group ${
-        selected
-          ? "border-blue-500 shadow-lg ring-2 ring-blue-100"
-          : "border-gray-100 hover:border-gray-200 hover:shadow-md"
-      }`}
+      className={`cursor-pointer group transition-all duration-200 ${selected ? "scale-[1.02]" : ""}`}
     >
       {/* Image */}
-      <div className="relative w-full h-44 bg-gray-100 overflow-hidden">
+      <div className={`relative h-52 rounded-3xl overflow-hidden transition-all duration-200 ${
+        selected ? "shadow-xl ring-2 ring-blue-400 ring-offset-2" : "shadow-md"
+      }`}>
         {place.photoUrl ? (
           <img
             src={place.photoUrl}
             alt={place.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-50">
-            <IoRestaurant className="text-4xl text-gray-200" />
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <IoRestaurant className="text-5xl text-gray-300" />
           </div>
         )}
 
-        {/* Rating badge */}
+        {/* Rating — top left */}
         {place.rating && (
-          <div className="absolute top-2 left-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 shadow-sm">
-            <IoStar className="text-amber-400 text-[10px]" />
-            <span className="text-[11px] font-bold text-gray-800">{place.rating.toFixed(1)}</span>
+          <div className="absolute top-3 left-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-sm">
+            <IoStar className="text-amber-400 text-xs" />
+            <span className="text-xs font-bold text-gray-800">{place.rating.toFixed(1)}</span>
             {place.ratingCount && (
-              <span className="text-[9px] text-gray-500">
+              <span className="text-[10px] text-gray-500">
                 ({place.ratingCount > 999 ? `${(place.ratingCount / 1000).toFixed(1)}k` : place.ratingCount})
               </span>
             )}
           </div>
         )}
 
-        {/* Open/closed badge */}
-        {place.isOpenNow != null && (
-          <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-semibold shadow-sm ${
-            place.isOpenNow
-              ? "bg-green-500/90 text-white"
-              : "bg-gray-800/70 text-white"
-          }`}>
-            {place.isOpenNow ? "Abierto" : "Cerrado"}
-          </div>
-        )}
-
-        {/* Price badge */}
-        {place.priceLevel && (
-          <div className="absolute bottom-2 right-2 flex items-center gap-0.5 bg-white/90 backdrop-blur-sm rounded-full px-2 py-0.5 shadow-sm">
-            <IoPricetag className="text-[9px] text-gray-500" />
-            <span className="text-[10px] font-semibold text-gray-700">{place.priceLevel}</span>
-          </div>
-        )}
-
-        {/* Add button */}
+        {/* Add button — top right */}
         <button
           onClick={(e) => { e.stopPropagation(); onPickerToggle(); }}
           title="Agregar al itinerario"
-          className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-colors ${
+          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all duration-150 ${
             added
               ? "bg-green-500 text-white"
-              : "bg-white/90 text-blue-500 hover:bg-blue-50"
+              : "bg-white/90 backdrop-blur-sm text-blue-500 hover:bg-blue-50 hover:scale-110"
           }`}
         >
-          {added ? <IoCheckmark className="text-xs" /> : <IoAdd className="text-sm" />}
+          {added ? <IoCheckmark className="text-sm" /> : <IoAdd className="text-base" />}
         </button>
 
         {/* Day picker popover */}
         {pickerOpen && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="absolute top-10 right-1.5 z-20 bg-white rounded-xl shadow-lg border border-gray-100 p-2 w-36"
+            className="absolute top-12 right-3 z-20 bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 w-44"
           >
-            <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5 px-1">
+            <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest mb-2">
               Agregar al día
             </p>
-            <div className="grid grid-cols-4 gap-1">
+            <div className="grid grid-cols-4 gap-1.5">
               {days.map((d) => (
                 <button
                   key={d.dayId}
                   onClick={() => onAddToDay(d.dayNumber)}
-                  className="text-[11px] font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg py-1 transition-colors"
+                  className="text-xs font-semibold text-gray-700 hover:bg-blue-500 hover:text-white rounded-xl py-1.5 transition-all bg-gray-50 border border-gray-100"
                 >
                   {d.dayNumber}
                 </button>
@@ -529,29 +509,43 @@ function RestaurantCard({
         )}
       </div>
 
-      {/* Info */}
-      <div className="p-3 space-y-1.5">
-        <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-1">
-          {place.name}
-        </h3>
-        <div className="flex items-center gap-1.5">
-          <IoLocationSharp className="text-blue-500 text-xs flex-shrink-0" />
-          <p className="text-[11px] text-gray-500 line-clamp-1 leading-relaxed">{place.address}</p>
+      {/* White info panel — overlaps image */}
+      <div className="mx-3 -mt-9 relative z-10 bg-white rounded-2xl shadow-xl px-3.5 py-3">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-1 flex-1">
+            {place.name}
+          </h3>
+          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
+            <IoArrowForward className="text-[11px] text-gray-500 group-hover:text-blue-500 transition-colors" />
+          </div>
         </div>
-        <div className="flex items-center justify-between pt-0.5">
+
+        <div className="flex items-center gap-1.5 mt-1.5">
+          <IoLocationSharp className="text-green-500 text-xs flex-shrink-0" />
+          <span className="text-[11px] text-gray-500 line-clamp-1">{place.address}</span>
+        </div>
+
+        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
+          {place.rating ? (
+            <div className="flex items-center gap-1">
+              <IoStar className="text-amber-400 text-[10px]" />
+              <span className="text-[11px] font-semibold text-gray-700">{place.rating.toFixed(1)}</span>
+              {place.ratingCount && (
+                <span className="text-[10px] text-gray-400">
+                  ({place.ratingCount > 999 ? `${(place.ratingCount / 1000).toFixed(1)}k` : place.ratingCount} reseñas)
+                </span>
+              )}
+            </div>
+          ) : <span />}
           {place.isOpenNow != null ? (
-            <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${
+            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
               place.isOpenNow ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-500"
             }`}>
               {place.isOpenNow ? "Abierto" : "Cerrado"}
             </span>
-          ) : <span />}
-          {place.priceLevel && (
-            <div className="flex items-center gap-0.5 text-gray-400">
-              <IoPricetag className="text-[9px]" />
-              <span className="text-[10px] font-medium">{place.priceLevel}</span>
-            </div>
-          )}
+          ) : place.priceLevel ? (
+            <span className="text-[11px] font-bold text-gray-800">{place.priceLevel}</span>
+          ) : null}
         </div>
       </div>
     </div>

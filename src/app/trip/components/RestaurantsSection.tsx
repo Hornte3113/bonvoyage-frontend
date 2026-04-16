@@ -189,7 +189,7 @@ export default function RestaurantsSection({ destination, tripDays, onAddToItine
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar restaurante…"
-              className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-200 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-transparent transition"
+              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-gray-800 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             />
           </div>
           <span className="text-xs text-gray-400 whitespace-nowrap">
@@ -441,91 +441,94 @@ function RestaurantCard({
   return (
     <div
       onClick={onClick}
-      className={`cursor-pointer group transition-all duration-200 ${selected ? "scale-[1.02]" : ""}`}
+      className={`relative rounded-3xl overflow-hidden cursor-pointer group transition-all duration-200 h-64 ${
+        selected
+          ? "shadow-xl ring-2 ring-blue-400 ring-offset-2 scale-[1.02]"
+          : "shadow-md hover:shadow-lg hover:scale-[1.01]"
+      }`}
     >
-      {/* Image */}
-      <div className={`relative h-52 rounded-3xl overflow-hidden transition-all duration-200 ${
-        selected ? "shadow-xl ring-2 ring-blue-400 ring-offset-2" : "shadow-md"
-      }`}>
-        {place.photoUrl ? (
-          <img
-            src={place.photoUrl}
-            alt={place.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-            <IoRestaurant className="text-5xl text-gray-300" />
-          </div>
-        )}
+      {/* Full-bleed image */}
+      {place.photoUrl ? (
+        <img
+          src={place.photoUrl}
+          alt={place.name}
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+          <IoRestaurant className="text-5xl text-gray-400" />
+        </div>
+      )}
 
-        {/* Rating — top left */}
-        {place.rating && (
-          <div className="absolute top-3 left-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-sm">
-            <IoStar className="text-amber-400 text-xs" />
-            <span className="text-xs font-bold text-gray-800">{place.rating.toFixed(1)}</span>
-            {place.ratingCount && (
-              <span className="text-[10px] text-gray-500">
-                ({place.ratingCount > 999 ? `${(place.ratingCount / 1000).toFixed(1)}k` : place.ratingCount})
-              </span>
-            )}
-          </div>
-        )}
+      {/* Top gradient for badge legibility */}
+      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/30 to-transparent" />
 
-        {/* Add button — top right */}
-        <button
-          onClick={(e) => { e.stopPropagation(); onPickerToggle(); }}
-          title="Agregar al itinerario"
-          className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all duration-150 ${
-            added
-              ? "bg-green-500 text-white"
-              : "bg-white/90 backdrop-blur-sm text-blue-500 hover:bg-blue-50 hover:scale-110"
-          }`}
+      {/* Rating — top left */}
+      {place.rating && (
+        <div className="absolute top-3 left-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 shadow-sm">
+          <IoStar className="text-amber-400 text-xs" />
+          <span className="text-xs font-bold text-gray-800">{place.rating.toFixed(1)}</span>
+          {place.ratingCount && (
+            <span className="text-[10px] text-gray-500">
+              ({place.ratingCount > 999 ? `${(place.ratingCount / 1000).toFixed(1)}k` : place.ratingCount})
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Add button — top right */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onPickerToggle(); }}
+        title="Agregar al itinerario"
+        className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all duration-150 ${
+          added
+            ? "bg-green-500 text-white"
+            : "bg-white/90 backdrop-blur-sm text-blue-500 hover:bg-white hover:scale-110"
+        }`}
+      >
+        {added ? <IoCheckmark className="text-sm" /> : <IoAdd className="text-base" />}
+      </button>
+
+      {/* Day picker popover */}
+      {pickerOpen && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="absolute top-12 right-3 z-20 bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 w-44"
         >
-          {added ? <IoCheckmark className="text-sm" /> : <IoAdd className="text-base" />}
-        </button>
-
-        {/* Day picker popover */}
-        {pickerOpen && (
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="absolute top-12 right-3 z-20 bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 w-44"
-          >
-            <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest mb-2">
-              Agregar al día
-            </p>
-            <div className="grid grid-cols-4 gap-1.5">
-              {days.map((d) => (
-                <button
-                  key={d.dayId}
-                  onClick={() => onAddToDay(d.dayNumber)}
-                  className="text-xs font-semibold text-gray-700 hover:bg-blue-500 hover:text-white rounded-xl py-1.5 transition-all bg-gray-50 border border-gray-100"
-                >
-                  {d.dayNumber}
-                </button>
-              ))}
-            </div>
+          <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-widest mb-2">
+            Agregar al día
+          </p>
+          <div className="grid grid-cols-4 gap-1.5">
+            {days.map((d) => (
+              <button
+                key={d.dayId}
+                onClick={() => onAddToDay(d.dayNumber)}
+                className="text-xs font-semibold text-gray-700 hover:bg-blue-500 hover:text-white rounded-xl py-1.5 transition-all bg-gray-50 border border-gray-100"
+              >
+                {d.dayNumber}
+              </button>
+            ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* White info panel — overlaps image */}
-      <div className="mx-3 -mt-9 relative z-10 bg-white rounded-2xl shadow-xl px-3.5 py-3">
-        <div className="flex items-start justify-between gap-2">
+      {/* White info panel — absolute bottom, INSIDE the card */}
+      <div className="absolute bottom-3 left-3 right-3 bg-white rounded-2xl shadow-xl px-3 py-2.5">
+        <div className="flex items-center justify-between gap-2">
           <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-1 flex-1">
             {place.name}
           </h3>
-          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
-            <IoArrowForward className="text-[11px] text-gray-500 group-hover:text-blue-500 transition-colors" />
+          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
+            <IoArrowForward className="text-[10px] text-gray-500 group-hover:text-blue-500 transition-colors" />
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 mt-1.5">
+        <div className="flex items-center gap-1 mt-1">
           <IoLocationSharp className="text-green-500 text-xs flex-shrink-0" />
           <span className="text-[11px] text-gray-500 line-clamp-1">{place.address}</span>
         </div>
 
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
+        <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-gray-50">
           {place.rating ? (
             <div className="flex items-center gap-1">
               <IoStar className="text-amber-400 text-[10px]" />
@@ -544,7 +547,7 @@ function RestaurantCard({
               {place.isOpenNow ? "Abierto" : "Cerrado"}
             </span>
           ) : place.priceLevel ? (
-            <span className="text-[11px] font-bold text-gray-800">{place.priceLevel}</span>
+            <span className="text-[10px] font-bold text-gray-700">{place.priceLevel}</span>
           ) : null}
         </div>
       </div>

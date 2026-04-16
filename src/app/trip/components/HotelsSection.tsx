@@ -55,6 +55,7 @@ function tomorrow() {
 }
 
 import { createApiClient } from "@/lib/api";
+import MaintenanceView from "./MaintenanceView";
 
 type TripDay = { dayId: string; dayNumber: number; date: string };
 type SavedHotelInfo = { name: string; imageUrl: string | null; price: string; externalId?: string };
@@ -173,6 +174,18 @@ export default function HotelsSection({
     .filter((h) => h.latitude && h.longitude)
     .map(toMapPlace);
 
+  // ── MANTENIMIENTO ─────────────────────────────────────────────────────────
+  // Quita este return cuando la API de hoteles vuelva a estar disponible
+  return (
+    <MaintenanceView
+      accent="purple"
+      title="Búsqueda de hospedajes no disponible"
+      description="Estamos trabajando con nuestro proveedor para restablecer la búsqueda de hoteles. Pronto podrás explorar opciones de hospedaje desde aquí."
+    />
+  );
+  // ── FIN MANTENIMIENTO ──────────────────────────────────────────────────────
+
+  // eslint-disable-next-line no-unreachable
   return (
     <div className="px-4 max-w-6xl mx-auto pt-6 pb-8 space-y-5">
 

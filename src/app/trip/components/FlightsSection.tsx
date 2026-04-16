@@ -9,6 +9,7 @@ import {
 import type { TripDay } from "../types";
 
 import { createApiClient, BACKEND } from "@/lib/api";
+import MaintenanceView from "./MaintenanceView";
 
 type TripType = "ida-vuelta" | "solo-ida" | "multidestino";
 
@@ -201,9 +202,21 @@ export default function FlightsSection({
     }
   }
 
+  // ── MANTENIMIENTO ─────────────────────────────────────────────────────────
+  // Quita este return cuando la API de vuelos vuelva a estar disponible
+  return (
+    <MaintenanceView
+      accent="blue"
+      title="Búsqueda de vuelos no disponible"
+      description="Estamos trabajando con nuestro proveedor para restablecer la búsqueda de vuelos. Pronto podrás explorar y comparar vuelos desde aquí."
+    />
+  );
+  // ── FIN MANTENIMIENTO ──────────────────────────────────────────────────────
+
+  // eslint-disable-next-line no-unreachable
   return (
     <div>
-      
+
       <div className="-mt-18 relative z-10 px-4 max-w-5xl mx-auto mb-6">
         <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-5">
 

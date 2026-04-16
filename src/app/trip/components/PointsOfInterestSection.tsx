@@ -3,7 +3,12 @@
 import { useState, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useAuth } from "@clerk/nextjs";
-import { IoStar, IoLocationSharp, IoCompass, IoPricetag, IoSearch, IoAdd, IoCheckmark, IoCalendarOutline, IoTimeOutline } from "react-icons/io5";
+import {
+  IoStar, IoLocationSharp, IoCompass, IoPricetag, IoSearch,
+  IoAdd, IoCheckmark, IoCalendarOutline, IoTimeOutline,
+  IoLibraryOutline, IoLeafOutline, IoFlagOutline, IoWaterOutline,
+  IoMoonOutline, IoGridOutline,
+} from "react-icons/io5";
 import type { ItineraryItem, TripDay } from "../types";
 
 const POIMap = dynamic(() => import("./POIMap"), { ssr: false });
@@ -43,6 +48,30 @@ type Props = {
 
 import { createApiClient } from "@/lib/api";
 
+// ── Category definitions ──────────────────────────────────────────────────────
+type CategoryId = "todos" | "museos" | "parques" | "monumentos" | "playas" | "vida-nocturna";
+
+const CATEGORIES: { id: CategoryId; label: string; Icon: React.ElementType }[] = [
+  { id: "todos",         label: "Todos",          Icon: IoGridOutline     },
+  { id: "museos",        label: "Museos",          Icon: IoLibraryOutline  },
+  { id: "parques",       label: "Parques",         Icon: IoLeafOutline     },
+  { id: "monumentos",    label: "Monumentos",      Icon: IoFlagOutline     },
+  { id: "playas",        label: "Playas",          Icon: IoWaterOutline    },
+  { id: "vida-nocturna", label: "Vida nocturna",   Icon: IoMoonOutline     },
+];
+
+function detectCategory(poi: POI): CategoryId {
+  const text = `${poi.name} ${poi.description ?? ""}`.toLowerCase();
+  if (/playa|beach|costa|bahía|bay|arena|surf/.test(text))                               return "playas";
+  if (/museo|museum|galería|gallery|arte\b|art\b|exhibición|exposición/.test(text))      return "museos";
+  if (/parque|park|jardín|garden|bosque|naturaleza|reserva|nature/.test(text))           return "parques";
+  if (/monumento|monument|memorial|statue|estatua|histórico|historic|ruina|ruin/.test(text)) return "monumentos";
+  if (/bar\b|club|discoteca|nightclub|pub|lounge|nocturna|nightlife|cantina/.test(text)) return "vida-nocturna";
+  return "todos";
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function PointsOfInterestSection({ destination, tripDays, onAddToItinerary, readOnly = false }: Props) {
   const { getToken } = useAuth();
   const days: TripDay[] = tripDays ?? [];
@@ -50,6 +79,7 @@ export default function PointsOfInterestSection({ destination, tripDays, onAddTo
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<CategoryId>("todos");
   const [pickerOpenId, setPickerOpenId] = useState<string | null>(null);
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
   const [detailPickerOpen, setDetailPickerOpen] = useState(false);
@@ -76,15 +106,35 @@ export default function PointsOfInterestSection({ destination, tripDays, onAddTo
   }, [destination.lat, destination.lng]);
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return places;
-    const q = query.toLowerCase();
-    return places.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.description?.toLowerCase().includes(q) ||
-        p.address.toLowerCase().includes(q)
-    );
-  }, [places, query]);
+    let list = places;
+
+    // Category filter
+    if (activeCategory !== "todos") {
+      list = list.filter((p) => detectCategory(p) === activeCategory);
+    }
+
+    // Search filter
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q) ||
+          p.address.toLowerCase().includes(q)
+      );
+    }
+
+    return list;
+  }, [places, query, activeCategory]);
+
+  // Count per category for badges
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { todos: places.length };
+    for (const cat of CATEGORIES.slice(1)) {
+      counts[cat.id] = places.filter((p) => detectCategory(p) === cat.id).length;
+    }
+    return counts;
+  }, [places]);
 
   const selectedPlace = filtered.find((p) => p.id === selectedId) ?? null;
 
@@ -137,6 +187,12 @@ export default function PointsOfInterestSection({ destination, tripDays, onAddTo
     setShowHours(false);
   }
 
+  function handleCategoryChange(cat: CategoryId) {
+    setActiveCategory(cat);
+    setSelectedId(null);
+    setDetailPickerOpen(false);
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96 gap-3 text-gray-400">
@@ -170,12 +226,54 @@ export default function PointsOfInterestSection({ destination, tripDays, onAddTo
         />
       </div>
 
+      {/* Category filter pills */}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        {CATEGORIES.map(({ id, label, Icon }) => {
+          const count = categoryCounts[id] ?? 0;
+          const isActive = activeCategory === id;
+          return (
+            <button
+              key={id}
+              onClick={() => handleCategoryChange(id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-150 border ${
+                isActive
+                  ? "bg-blue-500 text-white border-blue-500 shadow-sm"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-500"
+              }`}
+            >
+              <Icon className="text-sm flex-shrink-0" />
+              {label}
+              {count > 0 && (
+                <span className={`text-[9px] font-bold px-1 py-0.5 rounded-full ${
+                  isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
+                }`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
       <div className="flex gap-4 items-start">
 
-        
-        <div className="flex-1 overflow-y-auto max-h-[580px] pr-1">
+        {/* Cards grid */}
+        <div className="flex-1 overflow-y-auto max-h-[540px] pr-1">
           {filtered.length === 0 ? (
-            <p className="text-sm text-gray-400 py-10 text-center">Sin resultados para "{query}"</p>
+            <div className="flex flex-col items-center justify-center py-16 gap-3 text-gray-300">
+              <IoCompass className="text-4xl" />
+              <p className="text-sm text-gray-400 text-center">
+                {query ? `Sin resultados para "${query}"` : `No hay lugares en esta categoría`}
+              </p>
+              {activeCategory !== "todos" && (
+                <button
+                  onClick={() => handleCategoryChange("todos")}
+                  className="text-xs text-blue-500 hover:underline"
+                >
+                  Ver todos los lugares
+                </button>
+              )}
+            </div>
           ) : (
             <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
               {filtered.map((poi) => (
@@ -195,7 +293,7 @@ export default function PointsOfInterestSection({ destination, tripDays, onAddTo
           )}
         </div>
 
-
+        {/* Right column: map + detail panel */}
         <div className="w-72 flex-shrink-0 sticky top-16 h-[580px] flex flex-col gap-3">
 
           {/* Map */}
@@ -208,49 +306,57 @@ export default function PointsOfInterestSection({ destination, tripDays, onAddTo
             />
           </div>
 
-      
+          {/* Detail panel */}
           <div className="flex-1 overflow-y-auto bg-white rounded-2xl border border-gray-100 shadow-sm min-h-0">
             {selectedPlace ? (
               <>
-                {selectedPlace.photoUrl && (
-                  <div className="w-full h-32 overflow-hidden rounded-t-2xl flex-shrink-0">
+                {/* Image with overlays */}
+                <div className="relative w-full h-32 overflow-hidden rounded-t-2xl flex-shrink-0">
+                  {selectedPlace.photoUrl ? (
                     <img
                       src={selectedPlace.photoUrl}
                       alt={selectedPlace.name}
                       className="w-full h-full object-cover"
                     />
-                  </div>
-                )}
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                      <IoCompass className="text-3xl text-gray-300" />
+                    </div>
+                  )}
+                  {/* Open/Closed badge */}
+                  {selectedPlace.isOpenNow != null && (
+                    <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full shadow ${
+                      selectedPlace.isOpenNow ? "bg-green-500 text-white" : "bg-red-500 text-white"
+                    }`}>
+                      {selectedPlace.isOpenNow ? "Abierto" : "Cerrado"}
+                    </span>
+                  )}
+                  {/* Rating overlay */}
+                  {selectedPlace.rating && (
+                    <div className="absolute bottom-2 left-2 flex items-center gap-0.5 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
+                      <IoStar className="text-amber-400 text-[10px]" />
+                      <span className="text-white text-[11px] font-bold">{selectedPlace.rating.toFixed(1)}</span>
+                      {selectedPlace.ratingCount && (
+                        <span className="text-white/70 text-[9px]">
+                          ({selectedPlace.ratingCount > 999
+                            ? `${(selectedPlace.ratingCount / 1000).toFixed(1)}k`
+                            : selectedPlace.ratingCount})
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div className="p-3 space-y-2">
-                 
                   <h3 className="font-bold text-gray-800 text-sm leading-snug">{selectedPlace.name}</h3>
 
-                  
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {selectedPlace.rating && (
-                      <div className="flex items-center gap-1">
-                        <IoStar className="text-amber-400 text-xs" />
-                        <span className="text-xs font-semibold text-gray-700">
-                          {selectedPlace.rating.toFixed(1)}
-                        </span>
-                        {selectedPlace.ratingCount && (
-                          <span className="text-[10px] text-gray-400">
-                            ({selectedPlace.ratingCount > 999
-                              ? `${(selectedPlace.ratingCount / 1000).toFixed(1)}k`
-                              : selectedPlace.ratingCount})
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {selectedPlace.priceLevel && (
-                      <div className="flex items-center gap-0.5 text-gray-500">
-                        <IoPricetag className="text-[10px]" />
-                        <span className="text-xs">{selectedPlace.priceLevel}</span>
-                      </div>
-                    )}
-                  </div>
+                  {selectedPlace.priceLevel && (
+                    <div className="flex items-center gap-0.5 text-gray-500">
+                      <IoPricetag className="text-[10px]" />
+                      <span className="text-xs">{selectedPlace.priceLevel}</span>
+                    </div>
+                  )}
 
-                  
                   {selectedPlace.description && (
                     <p className="text-xs text-gray-600 leading-relaxed">{selectedPlace.description}</p>
                   )}
@@ -280,21 +386,21 @@ export default function PointsOfInterestSection({ destination, tripDays, onAddTo
                       )}
                     </button>
                   ) : (
-                    <div className="mt-1 p-2 bg-gray-50 rounded-xl border border-gray-100 space-y-2">
+                    <div className="mt-1 p-3 bg-gray-50 rounded-xl border border-gray-100 space-y-3">
 
                       {/* Horario de operación */}
                       {(selectedPlace.isOpenNow != null || selectedPlace.todayHours) && (
                         <div className="bg-white rounded-lg p-2 border border-gray-100">
-                          <div className="flex items-center justify-between mb-0.5">
+                          <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-1">
-                              <IoTimeOutline className="text-gray-400 text-[10px]" />
+                              <IoTimeOutline className="text-gray-400 text-xs" />
                               <span className="text-[10px] font-semibold text-gray-500">Horario de operación</span>
                             </div>
                             {selectedPlace.isOpenNow != null && (
-                              <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${
-                                selectedPlace.isOpenNow ? "bg-green-50 text-green-600" : "bg-red-50 text-red-500"
+                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                                selectedPlace.isOpenNow ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
                               }`}>
-                                {selectedPlace.isOpenNow ? "Abierto" : "Cerrado"}
+                                {selectedPlace.isOpenNow ? "Abierto ahora" : "Cerrado ahora"}
                               </span>
                             )}
                           </div>
@@ -323,7 +429,7 @@ export default function PointsOfInterestSection({ destination, tripDays, onAddTo
 
                       {/* Selector de día */}
                       <div>
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
                           Selecciona el día
                         </p>
                         <div className="grid grid-cols-4 gap-1">
@@ -339,25 +445,32 @@ export default function PointsOfInterestSection({ destination, tripDays, onAddTo
                         </div>
                       </div>
 
-                      {/* Hora de visita (opcional) */}
-                      <div className="flex gap-1.5">
-                        <div className="flex-1">
-                          <label className="text-[9px] text-gray-400 uppercase tracking-wide block mb-0.5">Hora visita</label>
-                          <input
-                            type="time"
-                            value={addStartTime}
-                            onChange={(e) => setAddStartTime(e.target.value)}
-                            className="w-full text-[10px] border border-gray-200 rounded-lg px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-blue-300 bg-white"
-                          />
+                      {/* Horario de visita — rediseñado */}
+                      <div className="bg-white rounded-lg border border-gray-100 p-2.5 space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <IoTimeOutline className="text-blue-400 text-sm" />
+                          <span className="text-xs font-semibold text-gray-600">Horario de visita</span>
+                          <span className="text-[9px] text-gray-400 ml-auto">opcional</span>
                         </div>
-                        <div className="flex-1">
-                          <label className="text-[9px] text-gray-400 uppercase tracking-wide block mb-0.5">Fin</label>
-                          <input
-                            type="time"
-                            value={addEndTime}
-                            onChange={(e) => setAddEndTime(e.target.value)}
-                            className="w-full text-[10px] border border-gray-200 rounded-lg px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-blue-300 bg-white"
-                          />
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-medium text-gray-500 block">Entrada</label>
+                            <input
+                              type="time"
+                              value={addStartTime}
+                              onChange={(e) => setAddStartTime(e.target.value)}
+                              className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white text-gray-700"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-medium text-gray-500 block">Salida</label>
+                            <input
+                              type="time"
+                              value={addEndTime}
+                              onChange={(e) => setAddEndTime(e.target.value)}
+                              className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white text-gray-700"
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -366,7 +479,7 @@ export default function PointsOfInterestSection({ destination, tripDays, onAddTo
                         onChange={(e) => setAddNote(e.target.value)}
                         placeholder="Nota opcional..."
                         rows={2}
-                        className="w-full text-[10px] border border-gray-200 rounded-lg px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none bg-white"
+                        className="w-full text-[10px] border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-300 resize-none bg-white"
                       />
                       <button
                         onClick={() => setDetailPickerOpen(false)}
@@ -415,30 +528,30 @@ function POICard({
   return (
     <div
       onClick={onClick}
-      className={`relative w-full text-left bg-white rounded-xl overflow-hidden shadow-sm border transition-all duration-200 cursor-pointer ${
+      className={`group relative w-full text-left bg-white rounded-xl overflow-hidden shadow-sm border transition-all duration-200 cursor-pointer ${
         selected
-          ? "border-blue-500 shadow-md ring-1 ring-blue-200"
-          : "border-gray-100 hover:border-gray-300 hover:shadow"
+          ? "border-blue-500 shadow-md ring-1 ring-blue-200 -translate-y-0.5"
+          : "border-gray-100 hover:border-gray-200 hover:shadow-md hover:-translate-y-1"
       }`}
     >
-      {/* boton para añadir al itinerario */}
+      {/* Add to itinerary button */}
       <button
         onClick={(e) => { e.stopPropagation(); onPickerToggle(); }}
         title="Agregar al itinerario"
-        className={`absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center shadow transition-colors ${
+        className={`absolute top-1.5 right-1.5 z-10 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-all duration-150 ${
           added
             ? "bg-green-500 text-white"
-            : "bg-white/90 text-blue-500 hover:bg-blue-50"
+            : "bg-white/90 text-blue-500 hover:bg-blue-500 hover:text-white"
         }`}
       >
         {added ? <IoCheckmark className="text-xs" /> : <IoAdd className="text-sm" />}
       </button>
 
-      {/* elegir dia */}
+      {/* Day picker popover */}
       {pickerOpen && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="absolute top-8 right-1.5 z-20 bg-white rounded-xl shadow-lg border border-gray-100 p-2 w-36"
+          className="absolute top-9 right-1.5 z-20 bg-white rounded-xl shadow-lg border border-gray-100 p-2 w-36"
         >
           <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5 px-1">
             Agregar al día
@@ -457,41 +570,52 @@ function POICard({
         </div>
       )}
 
-      {/* Imagen */}
-      <div className="w-full h-28 bg-gray-100 overflow-hidden">
+      {/* Image with overlays */}
+      <div className="relative w-full h-28 bg-gray-100 overflow-hidden">
         {poi.photoUrl ? (
-          <img src={poi.photoUrl} alt={poi.name} className="w-full h-full object-cover" />
+          <img
+            src={poi.photoUrl}
+            alt={poi.name}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gray-50">
             <IoCompass className="text-3xl text-gray-200" />
           </div>
         )}
+
+        {/* Open/Closed badge */}
+        {poi.isOpenNow != null && (
+          <span className={`absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow ${
+            poi.isOpenNow ? "bg-green-500 text-white" : "bg-red-500 text-white"
+          }`}>
+            {poi.isOpenNow ? "Abierto" : "Cerrado"}
+          </span>
+        )}
+
+        {/* Rating badge — bottom left */}
+        {poi.rating && (
+          <div className="absolute bottom-1.5 left-1.5 flex items-center gap-0.5 bg-black/55 backdrop-blur-sm rounded-full px-1.5 py-0.5">
+            <IoStar className="text-amber-400 text-[9px]" />
+            <span className="text-white text-[10px] font-bold">{poi.rating.toFixed(1)}</span>
+            {poi.ratingCount && (
+              <span className="text-white/70 text-[8px]">
+                ({poi.ratingCount > 999
+                  ? `${(poi.ratingCount / 1000).toFixed(1)}k`
+                  : poi.ratingCount})
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="p-2.5">
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-1">
-            {poi.rating && (
-              <>
-                <IoStar className="text-amber-400 text-[10px]" />
-                <span className="text-[11px] font-semibold text-gray-700">
-                  {poi.rating.toFixed(1)}
-                </span>
-                {poi.ratingCount && (
-                  <span className="text-[9px] text-gray-400">
-                    ({poi.ratingCount > 999 ? `${(poi.ratingCount / 1000).toFixed(1)}k` : poi.ratingCount})
-                  </span>
-                )}
-              </>
-            )}
+        {poi.priceLevel && (
+          <div className="flex items-center gap-0.5 text-gray-400 mb-1">
+            <IoPricetag className="text-[9px]" />
+            <span className="text-[10px]">{poi.priceLevel}</span>
           </div>
-          {poi.priceLevel && (
-            <div className="flex items-center gap-0.5 text-gray-500">
-              <IoPricetag className="text-[9px]" />
-              <span className="text-[10px] font-medium">{poi.priceLevel}</span>
-            </div>
-          )}
-        </div>
+        )}
 
         <h3 className="font-semibold text-gray-800 text-xs leading-tight line-clamp-1">
           {poi.name}

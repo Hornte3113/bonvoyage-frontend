@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
-import { Geist, Geist_Mono, Quicksand } from 'next/font/google'
+import { Geist, Geist_Mono, Playfair_Display } from 'next/font/google'
 import './globals.css'
 import CookieBanner from '@/app/components/CookieBanner'
 
@@ -14,7 +14,11 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
-const quickSand = Quicksand({subsets: ['latin']})
+const playfair = Playfair_Display({
+  variable: '--font-playfair',
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+})
 
 export const metadata: Metadata = {
   title: 'Bon Voyage - Planificador de viajes',
@@ -32,7 +36,7 @@ export default function RootLayout({
       signUpForceRedirectUrl="/dashboard"
     >
       <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased`}>
           {children}
           <CookieBanner />
         </body>

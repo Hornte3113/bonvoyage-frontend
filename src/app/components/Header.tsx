@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { IoIosGlobe } from "react-icons/io";
@@ -27,6 +27,8 @@ function Header({ variant = "dark", onSearch, useLandingMenus }: Props) {
     const router = useRouter();
     const [query, setQuery] = React.useState("");
     const [loading, setLoading] = React.useState(false);
+    const [searchOpen, setSearchOpen] = React.useState(false);
+    const inputRef = React.useRef<HTMLInputElement>(null);
     const { profile } = useUserProfile();
     const { isSignedIn } = useAuth();
 
@@ -73,9 +75,11 @@ function Header({ variant = "dark", onSearch, useLandingMenus }: Props) {
                     className="flex items-center gap-6 rounded-full bg-black/55 backdrop-blur-md border border-white/10 px-5 py-2.5 shadow-lg w-full max-w-4xl"
                 >
                     {/* Logo */}
-                    <div className="flex items-center gap-1.5 text-white font-semibold tracking-[3px] text-[11px] shrink-0">
-                        <IoIosGlobe className="text-lg text-[#d4f53c]" />
-                        Bon Voyage
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <IoIosGlobe className="text-lg text-white" />
+                        <span className="font-[family-name:var(--font-playfair)] italic text-white text-sm tracking-wide">
+                            Bon Voyage
+                        </span>
                     </div>
 
                     {/* Nav links */}
@@ -95,7 +99,7 @@ function Header({ variant = "dark", onSearch, useLandingMenus }: Props) {
                                 <motion.li
                                     layout
                                     key={href}
-                                    className={`inline-block cursor-pointer transition-colors duration-200 hover:text-white ${isActive ? "text-[#d4f53c]" : ""}`}
+                                    className={`inline-block cursor-pointer transition-colors duration-200 hover:text-white ${isActive ? "text-cyan-400" : ""}`}
                                     whileTap={{ scale: 0.93 }}
                                 >
                                     {isAnchor ? (
@@ -110,15 +114,44 @@ function Header({ variant = "dark", onSearch, useLandingMenus }: Props) {
 
                     {/* Right side: search + auth */}
                     <div className="flex items-center gap-3 shrink-0">
-                        <form onSubmit={handleSearch} className="hidden md:flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-1 border border-white/15">
-                            <IoSearchOutline className="text-white/60 text-sm" />
-                            <input
-                                type="text"
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                placeholder="Buscar destino..."
-                                className="bg-transparent outline-none text-[11px] text-white placeholder:text-white/40 w-28"
-                            />
+                        {/* Expandable search */}
+                        <form
+                            onSubmit={handleSearch}
+                            className="hidden md:flex items-center justify-end"
+                            onMouseEnter={() => { setSearchOpen(true); setTimeout(() => inputRef.current?.focus(), 50); }}
+                            onMouseLeave={() => { if (!query) setSearchOpen(false); }}
+                        >
+                            <motion.div
+                                layout
+                                className="flex items-center rounded-full border border-white/20 bg-white/10 overflow-hidden"
+                                style={{ paddingLeft: searchOpen ? "0.75rem" : 0 }}
+                                transition={{ duration: 0.25, ease: "easeOut" }}
+                            >
+                                <AnimatePresence>
+                                    {searchOpen && (
+                                        <motion.input
+                                            key="search-input"
+                                            ref={inputRef}
+                                            initial={{ width: 0, opacity: 0 }}
+                                            animate={{ width: 140, opacity: 1 }}
+                                            exit={{ width: 0, opacity: 0 }}
+                                            transition={{ duration: 0.25, ease: "easeOut" }}
+                                            type="text"
+                                            value={query}
+                                            onChange={(e) => setQuery(e.target.value)}
+                                            placeholder="Buscar destino..."
+                                            className="bg-transparent outline-none text-[11px] text-white placeholder:text-white/40 pr-1"
+                                        />
+                                    )}
+                                </AnimatePresence>
+                                <button
+                                    type={searchOpen && query ? "submit" : "button"}
+                                    disabled={loading}
+                                    className="flex items-center justify-center w-8 h-8 text-white/70 hover:text-cyan-400 transition-colors duration-200"
+                                >
+                                    <IoSearchOutline className="text-base" />
+                                </button>
+                            </motion.div>
                         </form>
 
                         <SignedOut>
@@ -128,7 +161,7 @@ function Header({ variant = "dark", onSearch, useLandingMenus }: Props) {
                                 </button>
                             </SignInButton>
                             <SignUpButton mode="modal">
-                                <button className="text-[11px] uppercase tracking-wider font-semibold px-4 py-1.5 rounded-full bg-[#d4f53c] text-black hover:bg-[#c5e832] transition-colors duration-200">
+                                <button className="text-[11px] uppercase tracking-wider font-semibold px-4 py-1.5 rounded-full bg-cyan-400 text-black hover:bg-cyan-300 transition-colors duration-200">
                                     Registrarse
                                 </button>
                             </SignUpButton>

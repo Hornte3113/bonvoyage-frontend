@@ -174,16 +174,83 @@ export default function HotelsSection({
     .filter((h) => h.latitude && h.longitude)
     .map(toMapPlace);
 
-  // ── MANTENIMIENTO ─────────────────────────────────────────────────────────
-  // Quita este return cuando la API de hoteles vuelva a estar disponible
   return (
-    <MaintenanceView
-      accent="purple"
-      title="Búsqueda de hospedajes no disponible"
-      description="Estamos trabajando con nuestro proveedor para restablecer la búsqueda de hoteles. Pronto podrás explorar opciones de hospedaje desde aquí."
-    />
+    <div className="px-4 max-w-6xl mx-auto pt-6 pb-8 space-y-5">
+
+      {/* Formulario de búsqueda */}
+      <form onSubmit={handleSearch} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 items-end">
+
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+              <IoLocationSharp className="text-xs" /> Destino
+            </label>
+            <div className="px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-600 truncate">
+              {destination.name}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+              <IoCalendarOutline className="text-xs" /> Entrada
+            </label>
+            <input
+              type="date" value={checkIn} min={today()}
+              onChange={(e) => setCheckIn(e.target.value)}
+              className="px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+              <IoCalendarOutline className="text-xs" /> Salida
+            </label>
+            <input
+              type="date" value={checkOut} min={checkIn}
+              onChange={(e) => setCheckOut(e.target.value)}
+              className="px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <div className="flex flex-col gap-1 flex-1">
+              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                <IoPerson className="text-xs" /> Adultos
+              </label>
+              <input type="number" min={1} max={10} value={adults}
+                onChange={(e) => setAdults(Number(e.target.value))}
+                className="px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+              />
+            </div>
+            <div className="flex flex-col gap-1 flex-1">
+              <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                <IoBed className="text-xs" /> Hab.
+              </label>
+              <input type="number" min={1} max={10} value={rooms}
+                onChange={(e) => setRooms(Number(e.target.value))}
+                className="px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <button type="submit" disabled={loading}
+            className="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 text-white text-sm font-semibold py-2 px-4 rounded-xl transition-colors">
+            {loading ? <IoBed className="text-base animate-pulse" /> : <IoSearch className="text-base" />}
+            {loading ? "Buscando..." : "Buscar"}
+          </button>
+        </div>
+      </form>
+
+      {/* Área de resultados — en mantenimiento */}
+      <MaintenanceView
+        accent="purple"
+        title="Búsqueda de hospedajes no disponible"
+        description="Estamos trabajando con nuestro proveedor para restablecer la búsqueda de hoteles. Pronto podrás explorar opciones de hospedaje desde aquí."
+      />
+    </div>
   );
-  // ── FIN MANTENIMIENTO ──────────────────────────────────────────────────────
 }
 
 function HotelCard({
